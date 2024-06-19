@@ -22,11 +22,11 @@ function App() {
           count is {count}
         </button>
         <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+          The last game you would ever need
         </p>
       </div>
       <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+        There are no docs
       </p>
     </>
   )
