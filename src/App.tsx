@@ -44,7 +44,8 @@ function App() {
                 Vectors and icons by <a href="https://dribbble.com/reggid?ref=svgrepo.com" target="_blank">Aslan</a> in
                 CC Attribution License via <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
             </p>
-            <p className="text-center text-gray-500 text-xs">
+            <p>
+                
                 Version - {__COMMIT_HASH__}
             </p>
         </>
