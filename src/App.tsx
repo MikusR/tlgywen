@@ -11,15 +11,27 @@ function App() {
         const storedCountPerClick = localStorage.getItem('countPerClick');
         return storedCountPerClick ? parseInt(storedCountPerClick) : 1;
     });
-    const [countPerClickIncrement] = useState(() => {
+    const [countPerClickIncrement, setCountPerClickIncrement] = useState(() => {
         const storedCountPerClickIncrement = localStorage.getItem('countPerClickIncrement');
         return storedCountPerClickIncrement ? parseInt(storedCountPerClickIncrement) : 1;
     });
+    const [autoClickers, setAutoClickers] = useState(() => {
+        const storedAutoClickers = localStorage.getItem('autoClickers');
+        return storedAutoClickers ? parseInt(storedAutoClickers) : 0;
+    });
+
     useEffect(() => {
         localStorage.setItem('clickCount', count.toString());
         localStorage.setItem('countPerClick', countPerClick.toString());
         localStorage.setItem('countPerClickIncrement', countPerClickIncrement.toString());
-    }, [count, countPerClick, countPerClickIncrement]);
+        const timer = setInterval(() => {
+            setCount((count) => count + (countPerClick) * autoClickers)
+        }, 1000);
+        return () => {
+            clearInterval(timer)
+        };
+    }, [count, countPerClick, countPerClickIncrement, autoClickers]);
+
 
     return (
         <>
@@ -39,15 +51,30 @@ function App() {
                 <p>
                     Count per click {countPerClick}
                 </p>
+                <div>
+                    <button disabled={count <= 100} onClick={() => {
+                        setAutoClickers((autoClickers) => autoClickers + 1)
+                        setCount((count) => count - 100)
+                    }}>100
+                    </button>
+                    <p>autoclickers: {autoClickers}</p>
+                </div>
             </div>
             <p className="about">
                 Vectors and icons by <a href="https://dribbble.com/reggid?ref=svgrepo.com" target="_blank">Aslan</a> in
                 CC Attribution License via <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
             </p>
             <p>
-                
                 Version - {__COMMIT_HASH__}
             </p>
+            <button onClick={() => {
+                localStorage.clear();
+                setCount(0);
+                setCountPerClick(1);
+                setCountPerClickIncrement(1);
+                setAutoClickers(0);
+            }}>Reset
+            </button>
         </>
     )
 }
