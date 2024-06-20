@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {useState} from 'react'
+import owl from './assets/owl.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => { setCount((count) => count + 1); }}>
-          count is {count}
-        </button>
-        <p>
-          The last game you would ever need
-        </p>
-      </div>
-      <p className="read-the-docs">
-        There are no docs
-      </p>
-    </>
-  )
+    return (
+        <>
+            <div>
+                <a href="https://mikusr.info" target="_blank">
+                    <img src={owl} className="logo" alt="An owl"/>
+                </a>
+            </div>
+            <h1>{count}</h1>
+            <div className="card">
+                <button onClick={() => {
+                    setCount((count) => count + 1);
+                }}>
+                    Click!
+                </button>
+                <p>
+                    The last game you would ever need
+                </p>
+            </div>
+            <p className="about">
+                Vectors and icons by
+                <a href="https://dribbble.com/reggid?ref=svgrepo.com" target="_blank">Aslan</a>
+                in CC Attribution License via
+                <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
+            </p>
+        </>
+    )
 }
 
 export default App
