@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
 import owl from './assets/owl.svg'
 import './App.css'
 
@@ -24,13 +24,17 @@ function App() {
         localStorage.setItem('clickCount', count.toString());
         localStorage.setItem('countPerClick', countPerClick.toString());
         localStorage.setItem('countPerClickIncrement', countPerClickIncrement.toString());
+        localStorage.setItem('autoClickers', autoClickers.toString());
+    }, [count, countPerClick, countPerClickIncrement, autoClickers]);
+
+    useEffect(() => {
         const timer = setInterval(() => {
             setCount((count) => count + (countPerClick) * autoClickers)
         }, 1000);
         return () => {
             clearInterval(timer)
         };
-    }, [count, countPerClick, countPerClickIncrement, autoClickers]);
+    },);
 
 
     return (
@@ -38,7 +42,7 @@ function App() {
             <div className="owl">
                 <img src={owl} onClick={() => {
                     setCountPerClick((countPerClick) => countPerClick + countPerClickIncrement);
-                }} className="logo" alt="An owl"/>
+                }} className="logo" alt="An owl" />
 
             </div>
             Total clicks: <h1>{count}</h1>
