@@ -19,19 +19,13 @@ function App() {
         const storedAutoClickers = localStorage.getItem('autoClickers');
         return storedAutoClickers ? parseInt(storedAutoClickers) : 0;
     });
-
-    const [autoClickerPrice, setAutoClickerPrice] = useState(() => {
-        const storedAutoClickerPrice = localStorage.getItem('autoClickerPrice');
-        return storedAutoClickerPrice ? parseInt(storedAutoClickerPrice) : 100;
-    });
-
+    const autoClickerPrice = 100 * (10 ** autoClickers)
     useEffect(() => {
         localStorage.setItem('clickCount', count.toString());
         localStorage.setItem('countPerClick', countPerClick.toString());
         localStorage.setItem('countPerClickIncrement', countPerClickIncrement.toString());
         localStorage.setItem('autoClickers', autoClickers.toString());
-        localStorage.setItem('autoClickerPrice', autoClickerPrice.toString());
-    }, [count, countPerClick, countPerClickIncrement, autoClickers, autoClickerPrice]);
+    }, [count, countPerClick, countPerClickIncrement, autoClickers]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -65,7 +59,6 @@ function App() {
                     <button disabled={count <= autoClickerPrice} onClick={() => {
                         setCount((count) => count - autoClickerPrice)
                         setAutoClickers((autoClickers) => autoClickers + 1)
-                        setAutoClickerPrice((autoClickerPrice) => autoClickerPrice * 10)
                     }}>{autoClickerPrice}
                     </button>
                     <p>autoclickers: {autoClickers}</p>
