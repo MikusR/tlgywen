@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import {useEffect, useState} from 'react'
 import owl from './assets/owl.svg'
 import './App.css'
 
@@ -20,12 +20,18 @@ function App() {
         return storedAutoClickers ? parseInt(storedAutoClickers) : 0;
     });
 
+    const [autoClickerPrice, setAutoClickerPrice] = useState(() => {
+        const storedAutoClickerPrice = localStorage.getItem('autoClickerPrice');
+        return storedAutoClickerPrice ? parseInt(storedAutoClickerPrice) : 100;
+    });
+
     useEffect(() => {
         localStorage.setItem('clickCount', count.toString());
         localStorage.setItem('countPerClick', countPerClick.toString());
         localStorage.setItem('countPerClickIncrement', countPerClickIncrement.toString());
         localStorage.setItem('autoClickers', autoClickers.toString());
-    }, [count, countPerClick, countPerClickIncrement, autoClickers]);
+        localStorage.setItem('autoClickerPrice', autoClickerPrice.toString());
+    }, [count, countPerClick, countPerClickIncrement, autoClickers, autoClickerPrice]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -42,7 +48,7 @@ function App() {
             <div className="owl">
                 <img src={owl} onClick={() => {
                     setCountPerClick((countPerClick) => countPerClick + countPerClickIncrement);
-                }} className="logo" alt="An owl" />
+                }} className="logo" alt="An owl"/>
 
             </div>
             Total clicks: <h1>{count}</h1>
@@ -56,10 +62,11 @@ function App() {
                     Count per click {countPerClick}
                 </p>
                 <div>
-                    <button disabled={count <= 100} onClick={() => {
+                    <button disabled={count <= autoClickerPrice} onClick={() => {
+                        setCount((count) => count - autoClickerPrice)
                         setAutoClickers((autoClickers) => autoClickers + 1)
-                        setCount((count) => count - 100)
-                    }}>100
+                        setAutoClickerPrice((autoClickerPrice) => autoClickerPrice * 10)
+                    }}>{autoClickerPrice}
                     </button>
                     <p>autoclickers: {autoClickers}</p>
                 </div>
