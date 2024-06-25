@@ -2,40 +2,64 @@ import {useEffect, useState} from 'react'
 import owl from './assets/owl.svg'
 import './App.css'
 
+interface Effect {
+    name: string;
+    value: number;
+}
+
 interface Upgrade {
     name: string;
     basePrice: number;
     price: number;
     stock: number;
     count: number;
+    effect: Effect[];
     soldOut: boolean;
     formula: (basePrice: number, count: number) => number; // Function to calculate price increase
 }
 
 const baseUpgrades: Upgrade[] = [
     {
-        name: "Double Click",
+        name: "+1 per click",
         basePrice: 50,
         price: 50,
         stock: 10,
         count: 0,
         soldOut: false,
+        effect: [
+            {
+                name: "perClick",
+                value: 1
+            }
+        ],
         formula: (price, count) => price * (1 + count) ** 2,
     },
     {
-        name: "Auto Clicker",
+        name: "+2 per click",
         basePrice: 100,
         price: 100,
         stock: 5,
         count: 0,
         soldOut: false,
+        effect: [
+            {
+                name: "perClick",
+                value: 2
+            }
+        ],
         formula: (price, count) => price * 1.5 ** (1 + count),
     },
 ]
 
 
 function App() {
-    const [upgrades, setUpgrades] = useState<Upgrade[]>(baseUpgrades);
+    const [upgrades, setUpgrades] = useState<Upgrade[]>(() => {
+        const storedUpgrades = localStorage.getItem('upgrades');
+        if (storedUpgrades) {
+            return JSON.parse(storedUpgrades) as Upgrade[];
+        }
+        return baseUpgrades;
+    });
     const [clicks, setClicks] = useState(() => {
         const storedClicks = localStorage.getItem('clickCount');
         return storedClicks ? parseInt(storedClicks) : 0;
@@ -75,7 +99,7 @@ function App() {
         setUpgrades(prevUpgrades => {
             const updatedUpgrades = [...prevUpgrades];
             const upgrade = updatedUpgrades[index];
-            if (upgrade.soldOut) {
+            if (upgrade.soldOut || clicks < upgrade.price) {
                 return prevUpgrades;
             }
             if (clicks >= upgrade.price) {
@@ -87,12 +111,18 @@ function App() {
                 ...upgrade,
                 count: newCount,
                 price: newPrice,
-                soldOut: newCount >= upgrade.stock // Update soldOut
+                soldOut: newCount >= upgrade.stock
             };
             return updatedUpgrades;
         });
+
+
     }
 
+    function click() {
+        // const countPerClickFromUpgrades = upgrades.map(upgrade => upgrade.count).reduce((a, b) => a + b, 0)
+        setClicks((clicks) => clicks + countPerClick);
+    }
 
     return (
         <div style={{display: 'flex'}}>
@@ -104,9 +134,7 @@ function App() {
                 </div>
                 Total clicks: <h1>{clicks}</h1>
                 <div className="card">
-                    <button onClick={() => {
-                        setClicks((clicks) => clicks + countPerClick);
-                    }}>
+                    <button onClick={click}>
                         Click!
                     </button>
                     <p>
