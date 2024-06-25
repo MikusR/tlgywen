@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import owl from './assets/owl.svg'
 import './App.css'
 
@@ -15,7 +15,7 @@ interface Upgrade {
     count: number;
     effect: Effect[];
     soldOut: boolean;
-    formula: (basePrice: number, count: number) => number; // Function to calculate price increase
+    formula: string;
 }
 
 const baseUpgrades: Upgrade[] = [
@@ -32,7 +32,7 @@ const baseUpgrades: Upgrade[] = [
                 value: 1
             }
         ],
-        formula: (price, count) => price * (1 + count) ** 2,
+        formula: 'formula1',
     },
     {
         name: "+2 per click",
@@ -47,7 +47,7 @@ const baseUpgrades: Upgrade[] = [
                 value: 2
             }
         ],
-        formula: (price, count) => price * 1.5 ** (1 + count),
+        formula: 'formula2',
     },
 ]
 
@@ -56,7 +56,8 @@ function App() {
     const [upgrades, setUpgrades] = useState<Upgrade[]>(() => {
         const storedUpgrades = localStorage.getItem('upgrades');
         if (storedUpgrades) {
-            return JSON.parse(storedUpgrades) as Upgrade[];
+            const parsedUpgrades = JSON.parse(storedUpgrades) as Upgrade[];
+            return parsedUpgrades.map(upgrade => ({...upgrade, price: calculateUpgradePrice(upgrade)}));
         }
         return baseUpgrades;
     });
@@ -64,38 +65,38 @@ function App() {
         const storedClicks = localStorage.getItem('clickCount');
         return storedClicks ? parseInt(storedClicks) : 0;
     });
-    const [countPerClick, setCountPerClick] = useState(() => {
-        const storedCountPerClick = localStorage.getItem('countPerClick');
-        return storedCountPerClick ? parseInt(storedCountPerClick) : 1;
-    });
-    const [countPerClickIncrement, setCountPerClickIncrement] = useState(() => {
-        const storedCountPerClickIncrement = localStorage.getItem('countPerClickIncrement');
-        return storedCountPerClickIncrement ? parseInt(storedCountPerClickIncrement) : 1;
-    });
     const [autoClickers, setAutoClickers] = useState(() => {
         const storedAutoClickers = localStorage.getItem('autoClickers');
         return storedAutoClickers ? parseInt(storedAutoClickers) : 0;
     });
-
+    const totalPerClick = useMemo(() => {
+        let sum = 1;
+        upgrades.forEach(upgrade => {
+            upgrade.effect.forEach(effect => {
+                if (effect.name === 'perClick') {
+                    sum += (upgrade.count * effect.value)
+                }
+            })
+        })
+        return sum;
+    }, [upgrades]);
     const autoClickerPrice = 100 * (10 ** autoClickers)
     useEffect(() => {
         localStorage.setItem('clickCount', clicks.toString());
-        localStorage.setItem('countPerClick', countPerClick.toString());
-        localStorage.setItem('countPerClickIncrement', countPerClickIncrement.toString());
         localStorage.setItem('autoClickers', autoClickers.toString());
         localStorage.setItem('upgrades', JSON.stringify(upgrades));
-    }, [clicks, countPerClick, countPerClickIncrement, autoClickers, upgrades]);
+    }, [clicks, autoClickers, upgrades]);
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setClicks((clicks) => clicks + (countPerClick * autoClickers))
+            setClicks((clicks) => clicks + (totalPerClick * autoClickers))
         }, 1000);
         return () => {
             clearInterval(timer);
         };
-    }, [countPerClick, autoClickers]);
+    }, [autoClickers, totalPerClick]);
 
-    function buyUpgrade(index: number, newCount: number) {
+    function buyUpgrade(index: number) {
         setUpgrades(prevUpgrades => {
             const updatedUpgrades = [...prevUpgrades];
             const upgrade = updatedUpgrades[index];
@@ -105,7 +106,8 @@ function App() {
             if (clicks >= upgrade.price) {
                 setClicks((clicks) => clicks - upgrade.price);
             }
-            const newPrice = Math.ceil(upgrade.formula(upgrade.price, newCount));
+            const newCount = upgrade.count + 1;
+            const newPrice = calculateUpgradePrice({...upgrade, count: newCount});
 
             updatedUpgrades[index] = {
                 ...upgrade,
@@ -119,9 +121,19 @@ function App() {
 
     }
 
+    function calculateUpgradePrice(upgrade: Upgrade) {
+        switch (upgrade.formula) {
+            case 'formula1':
+                return Math.ceil((upgrade.basePrice * (1 + upgrade.count)) * (1 + upgrade.count) ** 2);
+            case 'formula2':
+                return Math.ceil((upgrade.basePrice * (1 + upgrade.count)) * 2 ** (1 + upgrade.count));
+        }
+        return upgrade.price
+    }
+
     function click() {
         // const countPerClickFromUpgrades = upgrades.map(upgrade => upgrade.count).reduce((a, b) => a + b, 0)
-        setClicks((clicks) => clicks + countPerClick);
+        setClicks((clicks) => clicks + totalPerClick);
     }
 
     return (
@@ -129,7 +141,7 @@ function App() {
             <div style={{flex: 2}}>
                 <div className="owl">
                     <img src={owl} onClick={() => {
-                        setCountPerClick((countPerClick) => countPerClick + countPerClickIncrement);
+                        setClicks((clicks) => clicks ** 2);
                     }} className="logo" alt="An owl"/>
                 </div>
                 Total clicks: <h1>{clicks}</h1>
@@ -138,7 +150,7 @@ function App() {
                         Click!
                     </button>
                     <p>
-                        Count per click {countPerClick}
+                        Count per click {totalPerClick}
                     </p>
                     <div>
                         <button disabled={clicks < autoClickerPrice} onClick={() => {
@@ -160,8 +172,6 @@ function App() {
                 <button onClick={() => {
                     localStorage.clear();
                     setClicks(0);
-                    setCountPerClick(1);
-                    setCountPerClickIncrement(1);
                     setAutoClickers(0);
                     setUpgrades(baseUpgrades);
                 }}>Reset
@@ -173,7 +183,7 @@ function App() {
                     <div key={index}>
                         <h3>{upgrade.name}</h3>
                         <button disabled={clicks < upgrade.price || upgrade.soldOut} onClick={() => {
-                            buyUpgrade(index, upgrade.count + 1);
+                            buyUpgrade(index);
                         }}>{upgrade.soldOut ? 'Sold out' : upgrade.price}</button>
                         <p>{upgrade.count}/{upgrade.stock}</p>
                     </div>
