@@ -4,36 +4,38 @@ import './App.css'
 
 interface Upgrade {
     name: string;
+    basePrice: number;
     price: number;
     stock: number;
     count: number;
-    priceIncrease: number;
     soldOut: boolean;
     formula: (basePrice: number, count: number) => number; // Function to calculate price increase
 }
 
+const baseUpgrades: Upgrade[] = [
+    {
+        name: "Double Click",
+        basePrice: 50,
+        price: 50,
+        stock: 10,
+        count: 0,
+        soldOut: false,
+        formula: (price, count) => price * (1 + count) ** 2,
+    },
+    {
+        name: "Auto Clicker",
+        basePrice: 100,
+        price: 100,
+        stock: 5,
+        count: 0,
+        soldOut: false,
+        formula: (price, count) => price * 1.5 ** (1 + count),
+    },
+]
+
 
 function App() {
-    const [upgrades, setUpgrades] = useState<Upgrade[]>([
-        {
-            name: "Double Click",
-            price: 50,
-            stock: 10,
-            count: 0,
-            priceIncrease: 0,
-            soldOut: false,
-            formula: (basePrice, count) => basePrice * count ** 2,
-        },
-        {
-            name: "Auto Clicker",
-            price: 100,
-            stock: 5,
-            count: 0,
-            priceIncrease: 0,
-            soldOut: false,
-            formula: (basePrice, count) => basePrice * 1.5 ** count,
-        },
-    ]);
+    const [upgrades, setUpgrades] = useState<Upgrade[]>(baseUpgrades);
     const [clicks, setClicks] = useState(() => {
         const storedClicks = localStorage.getItem('clickCount');
         return storedClicks ? parseInt(storedClicks) : 0;
@@ -76,13 +78,16 @@ function App() {
             if (upgrade.soldOut) {
                 return prevUpgrades;
             }
-            const newPriceIncrease = upgrade.formula(upgrade.price, newCount);
+            if (clicks >= upgrade.price) {
+                setClicks((clicks) => clicks - upgrade.price);
+            }
+            const newPrice = Math.ceil(upgrade.formula(upgrade.price, newCount));
 
             updatedUpgrades[index] = {
                 ...upgrade,
                 count: newCount,
-                priceIncrease: newPriceIncrease,
-                upgrade.soldOut: newCount >= upgrade.stock
+                price: newPrice,
+                soldOut: newCount >= upgrade.stock // Update soldOut
             };
             return updatedUpgrades;
         });
@@ -130,7 +135,7 @@ function App() {
                     setCountPerClick(1);
                     setCountPerClickIncrement(1);
                     setAutoClickers(0);
-                    setUpgrades([]);
+                    setUpgrades(baseUpgrades);
                 }}>Reset
                 </button>
             </div>
@@ -141,7 +146,7 @@ function App() {
                         <h3>{upgrade.name}</h3>
                         <button disabled={clicks < upgrade.price || upgrade.soldOut} onClick={() => {
                             buyUpgrade(index, upgrade.count + 1);
-                        }}>{upgrade.price + upgrade.priceIncrease}</button>
+                        }}>{upgrade.soldOut ? 'Sold out' : upgrade.price}</button>
                         <p>{upgrade.count}/{upgrade.stock}</p>
                     </div>
                 ))}
