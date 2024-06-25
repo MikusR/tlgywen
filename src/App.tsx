@@ -5,11 +5,33 @@ import './App.css'
 interface Upgrade {
     name: string;
     price: number;
-    effect: () => void;
+    stock: number;
+    count: number;
+    priceIncrease: number;
+    formula: (basePrice: number, count: number) => number; // Function to calculate price increase
 }
 
 
 function App() {
+    const [upgrades, setUpgrades] = useState<Upgrade[]>([
+        {
+            name: "Double Click",
+            price: 50,
+            stock: 10,
+            count: 0,
+            priceIncrease: 0,
+            formula: (basePrice, count) => basePrice * count ** 2,
+        },
+        {
+            name: "Auto Clicker",
+            price: 100,
+            stock: 5,
+            count: 0,
+            priceIncrease: 0,
+            formula: (basePrice, count) => basePrice * 1.5 ** count, // Exponential growth
+        },
+        // ... more upgrades with their own formulas
+    ]);
     const [count, setCount] = useState(() => {
         const storedCount = localStorage.getItem('clickCount');
         return storedCount ? parseInt(storedCount) : 0;
@@ -26,27 +48,7 @@ function App() {
         const storedAutoClickers = localStorage.getItem('autoClickers');
         return storedAutoClickers ? parseInt(storedAutoClickers) : 0;
     });
-    const [upgrades, setUpgrades] = useState<Upgrade[]>(() => {
-        const storedUpgrades = localStorage.getItem('upgrades');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return storedUpgrades ? JSON.parse(storedUpgrades) : [
-            {
-                name: "Double Click", price: 50, effect: () => {
-                    setCountPerClick(cpc => cpc * 2);
-                }
-            },
-            {
-                name: "Triple Click", price: 200, effect: () => {
-                    setCountPerClick(cpc => cpc * 3);
-                }
-            },
-            {
-                name: "Auto Clicker Boost", price: 500, effect: () => {
-                    setCountPerClickIncrement(cpi => cpi * 2);
-                }
-            },
-        ];
-    });
+
     const autoClickerPrice = 100 * (10 ** autoClickers)
     useEffect(() => {
         localStorage.setItem('clickCount', count.toString());
@@ -58,19 +60,29 @@ function App() {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setCount((count) => count + (countPerClick) * autoClickers)
+            setCount((count) => count + (countPerClick * autoClickers))
         }, 1000);
         return () => {
-            clearInterval(timer)
+            clearInterval(timer);
         };
-    },);
-    const buyUpgrade = (upgrade: Upgrade, index: number) => {
-        if (count >= upgrade.price) {
-            setCount(count => count - upgrade.price);
-            upgrade.effect();
-            setUpgrades(upgrades => upgrades.filter((_, i) => i !== index));
-        }
-    };
+    }, [countPerClick, autoClickers]);
+
+    function handleUpgradeCountChange(index: number, newCount: number) {
+        setUpgrades(prevUpgrades => {
+            const updatedUpgrades = [...prevUpgrades];
+            const upgrade = updatedUpgrades[index];
+
+            // Use the upgrade's own formula to calculate the new price increase
+            const newPriceIncrease = upgrade.formula(upgrade.price, newCount);
+
+            updatedUpgrades[index] = {
+                ...upgrade,
+                count: newCount,
+                priceIncrease: newPriceIncrease,
+            };
+            return updatedUpgrades;
+        });
+    }
 
 
     return (
@@ -114,41 +126,26 @@ function App() {
                     setCountPerClick(1);
                     setCountPerClickIncrement(1);
                     setAutoClickers(0);
-                    setUpgrades([
-                        {
-                            name: "Double Click", price: 50, effect: () => {
-                                setCountPerClick(cpc => cpc * 2);
-                            }
-                        },
-                        {
-                            name: "Triple Click", price: 200, effect: () => {
-                                setCountPerClick(cpc => cpc * 3);
-                            }
-                        },
-                        {
-                            name: "Auto Clicker Boost",
-                            price: 500,
-                            effect: () => {
-                                setCountPerClickIncrement(cpi => cpi * 2);
-                            }
-                        },
-                    ]);
+                    setUpgrades([]);
                 }}>Reset
                 </button>
             </div>
             <div style={{flex: 1, borderLeft: '1px solid #ccc', padding: '20px'}}>
                 <h2>Upgrades</h2>
                 {upgrades.map((upgrade, index) => (
-                    <button
-                        key={index}
-                        onClick={() => {
-                            buyUpgrade(upgrade, index);
-                        }}
-                        disabled={count < upgrade.price}
-                        style={{display: 'block', margin: '10px 0'}}
-                    >
-                        {upgrade.name} ({upgrade.price} clicks)
-                    </button>
+                    <div key={index}>
+                        <h3>{upgrade.name}</h3>
+                        <p>Price: {upgrade.price + upgrade.priceIncrease}</p>
+                        <input
+                            type="number"
+                            value={upgrade.count}
+                            min="0"
+                            max={upgrade.stock}
+                            onChange={e => {
+                                handleUpgradeCountChange(index, Number(e.target.value));
+                            }}
+                        />
+                    </div>
                 ))}
             </div>
         </div>
