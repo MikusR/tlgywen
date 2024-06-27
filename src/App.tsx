@@ -3,6 +3,7 @@ import owl from './assets/owl.svg'
 import './App.css'
 import Decimal from "break_eternity.js";
 
+const __SAVE_VERSION__ = '2024-06-27-1'; // Update when changing save format
 
 interface Effect {
     name: string;
@@ -91,10 +92,15 @@ function App() {
         localStorage.setItem('clickCount', clicks.toString());
         localStorage.setItem('autoClickers', autoClickers.toString());
         localStorage.setItem('upgrades', JSON.stringify(upgrades));
+        localStorage.setItem('saveVersion', __SAVE_VERSION__);
+        localStorage.setItem('saveTimeStamp', new Date().toISOString());
     }, [clicks, autoClickers, upgrades]);
 
     useEffect(() => {
         const timer = setInterval(() => {
+            if (autoClickers.eq(0)) {
+                return;
+            }
             setClicks((clicks) => clicks.plus(totalPerClick.mul(autoClickers)).ceil());
         }, 1000);
         return () => {
