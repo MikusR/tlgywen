@@ -43,3 +43,11 @@
 .about {
     color: #888;
 }
+
+.icon {
+    vertical-align: middle;
+    margin-left: 4px;
+    margin-bottom: 4px;
+    width: 24px;
+    height: 24px;
+}
