@@ -28,5 +28,50 @@
       }
     ],
     "formula": "formula2"
+  },
+  {
+    "name": "+3 per click",
+    "basePrice": "1000",
+    "price": "1000",
+    "stock": "5",
+    "count": "0",
+    "soldOut": false,
+    "effect": [
+      {
+        "name": "perClick",
+        "value": "3"
+      }
+    ],
+    "formula": "formula2"
+  },
+  {
+    "name": "Add generator (+10 per tick)",
+    "basePrice": "10000",
+    "price": "10000",
+    "stock": "5",
+    "count": "0",
+    "soldOut": false,
+    "effect": [
+      {
+        "name": "perTick",
+        "value": "10"
+      }
+    ],
+    "formula": "formula2"
+  },
+  {
+    "name": "Decrease tick timer by 1s",
+    "basePrice": "10000",
+    "price": "10000",
+    "stock": "9",
+    "count": "0",
+    "soldOut": false,
+    "effect": [
+      {
+        "name": "tickTime",
+        "value": "-1000"
+      }
+    ],
+    "formula": "formula2"
   }
 ]

@@ -5,6 +5,7 @@ import Decimal from "break_eternity.js";
 import upgradesJSON from './data/upgrades.json';
 
 const __SAVE_VERSION__ = '2024-06-27-1'; // Update when changing save format
+const __BASE_TICK_TIMER__ = 10000;
 
 interface Effect {
     name: string;
@@ -24,17 +25,26 @@ interface Upgrade {
 
 const baseUpgrades: Upgrade[] = upgradesJSON
 
-console.log(JSON.stringify(baseUpgrades))
-
 function App() {
     const [upgrades, setUpgrades] = useState<Upgrade[]>(() => {
+        const finalUpgrades = baseUpgrades
         const storedUpgrades = localStorage.getItem('upgrades');
         if (storedUpgrades) {
             const parsedUpgrades = JSON.parse(storedUpgrades) as Upgrade[];
-            // return parsedUpgrades
-            return parsedUpgrades.map(upgrade => ({...upgrade, price: calculateUpgradePrice(upgrade)}));
+            finalUpgrades.forEach(finalUpgrade => {
+                const upgrade = parsedUpgrades.find(u => u.name === finalUpgrade.name);
+                if (upgrade) {
+                    finalUpgrade.count = Decimal.min(upgrade.count, finalUpgrade.stock).toString();
+                }
+
+            })
+            return finalUpgrades.map(upgrade => ({
+                ...upgrade,
+                price: calculateUpgradePrice(upgrade),
+                soldOut: new Decimal(upgrade.count).greaterThanOrEqualTo(new Decimal(upgrade.stock))
+            }));
         }
-        return baseUpgrades;
+        return finalUpgrades;
     });
     const [clicks, setClicks] = useState(() => {
         const storedClicks = localStorage.getItem('clickCount');
@@ -49,6 +59,28 @@ function App() {
         upgrades.forEach(upgrade => {
             upgrade.effect.forEach(effect => {
                 if (effect.name === 'perClick') {
+                    sum = sum.plus(Decimal.mul(upgrade.count, effect.value))
+                }
+            })
+        })
+        return sum;
+    }, [upgrades]);
+    const perTick = useMemo(() => {
+        let sum = new Decimal(0);
+        upgrades.forEach(upgrade => {
+            upgrade.effect.forEach(effect => {
+                if (effect.name === 'perTick') {
+                    sum = sum.plus(Decimal.mul(upgrade.count, effect.value))
+                }
+            })
+        })
+        return sum;
+    }, [upgrades]);
+    const totalTickTimer = useMemo(() => {
+        let sum = new Decimal(__BASE_TICK_TIMER__);
+        upgrades.forEach(upgrade => {
+            upgrade.effect.forEach(effect => {
+                if (effect.name === 'tickTime') {
                     sum = sum.plus(Decimal.mul(upgrade.count, effect.value))
                 }
             })
@@ -78,7 +110,17 @@ function App() {
             clearInterval(timer);
         };
     }, [autoClickers, totalPerClick, clicks]);
-
+    useEffect(() => {
+        const tickTimer = setInterval(() => {
+            if (perTick.eq(0)) {
+                return;
+            }
+            setClicks((clicks) => clicks.plus(perTick).ceil());
+        }, totalTickTimer.toNumber());
+        return () => {
+            clearInterval(tickTimer);
+        };
+    }, [perTick, totalTickTimer, clicks]);
 
     function buyUpgrade(index: number) {
         setUpgrades(prevUpgrades => {
@@ -125,23 +167,26 @@ function App() {
                 <div className="owl">
                     <img src={owl} onClick={() => {
                         setClicks((clicks) => clicks.pow(2).ceil());
-                    }} className="logo" alt="An owl"/>
+                    }} className="logo" alt="A Cheating owl"/>
                 </div>
                 Total clicks: <h1>{clicks.toString()}</h1>
+
+
+                +{perTick.toString()} every {totalTickTimer.div(1000).toString()}s from generators
                 <div className="card">
                     <button onClick={click}>
-                        Click!
+                        Click! +{totalPerClick.toString()}
                     </button>
-                    <p>
-                        Count per click {totalPerClick.toString()}
-                    </p>
+                    <br/>
+                    <br/>
+                    Auto Clickers
                     <div>
                         <button disabled={clicks.lessThan(autoClickerPrice)} onClick={() => {
                             setClicks((clicks) => clicks.minus(autoClickerPrice).ceil());
                             setAutoClickers((autoClickers) => autoClickers.plus(1));
                         }}>{autoClickerPrice.toString()}
                         </button>
-                        <p>autoclickers: {autoClickers.toString()}</p>
+                        <p>+{totalPerClick.toString()} every 1s from {autoClickers.toString()} autoclickers</p>
                     </div>
                 </div>
                 <p className="about">
