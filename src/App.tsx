@@ -2,6 +2,7 @@ import {useCallback, useEffect, useMemo, useState} from 'react'
 import owl from './assets/owl.svg'
 import './App.css'
 import Decimal from "break_eternity.js";
+import upgradesJSON from './data/upgrades.json';
 
 const __SAVE_VERSION__ = '2024-06-27-1'; // Update when changing save format
 
@@ -21,39 +22,9 @@ interface Upgrade {
     formula: string;
 }
 
-const baseUpgrades: Upgrade[] = [
-    {
-        name: "+1 per click",
-        basePrice: "50",
-        price: "50",
-        stock: '10',
-        count: '0',
-        soldOut: false,
-        effect: [
-            {
-                name: "perClick",
-                value: '1'
-            }
-        ],
-        formula: 'formula1',
-    },
-    {
-        name: "+2 per click",
-        basePrice: '100',
-        price: '100',
-        stock: '5',
-        count: '0',
-        soldOut: false,
-        effect: [
-            {
-                name: "perClick",
-                value: '2'
-            }
-        ],
-        formula: 'formula2',
-    },
-]
+const baseUpgrades: Upgrade[] = upgradesJSON
 
+console.log(JSON.stringify(baseUpgrades))
 
 function App() {
     const [upgrades, setUpgrades] = useState<Upgrade[]>(() => {
