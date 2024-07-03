@@ -8,7 +8,6 @@ import upgradesJSON from './data/upgrades.json';
 const __SAVE_VERSION__ = '2024-06-27-1'; // Update when changing save format
 const __BASE_TICK_TIMER__ = 10000;
 
-// const baseUnlocks = {'clicks': false, "autoclickers": false, "generators": false, "upgrades": false};
 
 interface Effect {
     name: string;
