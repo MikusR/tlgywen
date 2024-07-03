@@ -1,242 +1,208 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
-import owl from './assets/owl.svg'
-import CursorIcon from './assets/cursor-icon.svg?react'
-import './App.css'
-import Decimal from "break_eternity.js";
-import upgradesJSON from './data/upgrades.json';
+import {useState, useEffect} from 'react';
+import {Grid, Zap, Database, Plus, ArrowUp, User} from 'lucide-react';
+import {Card} from '@/components/ui/card';
+import {Button} from '@/components/ui/button';
+import {Progress} from '@/components/ui/progress';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
+import {ScrollArea} from '@/components/ui/scroll-area';
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 
-const __SAVE_VERSION__ = '2024-06-27-1'; // Update when changing save format
-const __BASE_TICK_TIMER__ = 10000;
+const ResourceCard = ({name, amount, icon: Icon}) => (
+    <div className="flex justify-between items-center mb-2 bg-gray-700 p-2 rounded">
+        <div className="flex items-center">
+            <Icon className="h-4 w-4 mr-2 text-gray-400"/>
+            <span className="text-sm text-gray-200">{name}</span>
+        </div>
+        <span className="text-sm font-bold text-gray-200">{amount.toLocaleString()}</span>
+    </div>
+);
 
+const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
+    <Card className="mb-2 overflow-hidden">
+        <div
+            className="relative h-24 bg-cover bg-center"
+            style={{backgroundImage: `url(${backgroundImage})`}}
+        >
+            <div className="absolute inset-0 bg-black bg-opacity-50 p-2">
+                <div className="flex justify-between items-start h-full text-white">
+                    <div>
+                        <h3 className="font-bold">{name}</h3>
+                        <p className="text-sm">Level: {level}</p>
+                    </div>
+                    <Button
+                        onClick={onUpgrade}
+                        size="sm"
+                        className="bg-green-500 hover:bg-green-600"
+                    >
+                        <ArrowUp className="h-4 w-4 mr-1"/>
+                        {cost}
+                    </Button>
+                </div>
+                <Progress value={level % 10 * 10} className="absolute bottom-0 left-0 right-0"/>
+            </div>
+        </div>
+    </Card>
+);
 
-interface Effect {
-    name: string;
-    value: string;
-}
+const PersistentSidebar = ({stats, resources}) => (
+    <div className="w-64 bg-gray-800 p-4 text-white flex flex-col">
+        <div className="flex items-center space-x-4 mb-6">
+            <Avatar>
+                <AvatarImage src="/api/placeholder/32/32" alt="Avatar"/>
+                <AvatarFallback><User/></AvatarFallback>
+            </Avatar>
+            <div>
+                <h2 className="text-lg font-bold">Player Name</h2>
+                <p className="text-sm text-gray-400">Level {stats.level}</p>
+            </div>
+        </div>
+        <div className="mb-6">
+            <h3 className="text-lg font-bold mb-2">Resources</h3>
+            <ResourceCard name="Coins" amount={resources.coins} icon={Grid}/>
+            <ResourceCard name="Energy" amount={resources.energy} icon={Zap}/>
+            <ResourceCard name="Data" amount={resources.data} icon={Database}/>
+        </div>
+        <div className="space-y-2 mt-auto">
+            <p>Total Clicks: {stats.totalClicks}</p>
+            <p>Total Resources: {stats.totalResources}</p>
+            <p>Generators Owned: {stats.generatorsOwned}</p>
+        </div>
+    </div>
+);
 
-
-interface Upgrade {
-    name: string;
-    basePrice: string;
-    price: string;
-    stock: string;
-    count: string;
-    effect: Effect[];
-    soldOut: boolean;
-    formula: string;
-}
-
-const baseUpgrades: Upgrade[] = upgradesJSON
-
-function App() {
-    const [upgrades, setUpgrades] = useState<Upgrade[]>(() => {
-        const finalUpgrades = baseUpgrades
-        const storedUpgrades = localStorage.getItem('upgrades');
-        if (storedUpgrades) {
-            const parsedUpgrades = JSON.parse(storedUpgrades) as Upgrade[];
-            finalUpgrades.forEach(finalUpgrade => {
-                const upgrade = parsedUpgrades.find(u => u.name === finalUpgrade.name);
-                if (upgrade) {
-                    finalUpgrade.count = Decimal.min(upgrade.count, finalUpgrade.stock).toString();
-                }
-
-            })
-            return finalUpgrades.map(upgrade => ({
-                ...upgrade,
-                price: calculateUpgradePrice(upgrade),
-                soldOut: new Decimal(upgrade.count).greaterThanOrEqualTo(new Decimal(upgrade.stock))
-            }));
-        }
-        return finalUpgrades;
+const ClickerGameDashboard = () => {
+    const [resources, setResources] = useState({
+        coins: 0,
+        energy: 0,
+        data: 0,
     });
-    const [clicks, setClicks] = useState(() => {
-        const storedClicks = localStorage.getItem('clickCount');
-        return storedClicks ? new Decimal(storedClicks) : new Decimal(0);
-    });
-    const [maxClicks, setMaxClicks] = useState(() => {
-        const storedMaxClicks = localStorage.getItem('maxClicks');
-        return storedMaxClicks ? new Decimal(storedMaxClicks) : new Decimal(0);
+
+    const [generators, setGenerators] = useState({
+        coinMiner: {level: 1, cost: 10, image: "/api/placeholder/256/144"},
+        energyPlant: {level: 1, cost: 20, image: "/api/placeholder/256/144"},
+        dataCenter: {level: 1, cost: 30, image: "/api/placeholder/256/144"},
     });
 
-
-    const [autoClickers, setAutoClickers] = useState(() => {
-        const storedAutoClickers = localStorage.getItem('autoClickers');
-        return storedAutoClickers ? new Decimal(storedAutoClickers) : new Decimal(0);
+    const [stats, setStats] = useState({
+        level: 1,
+        totalClicks: 0,
+        totalResources: 0,
+        generatorsOwned: 3,
     });
-    const totalPerClick = useMemo(() => {
-        let sum = new Decimal(1);
-        upgrades.forEach(upgrade => {
-            upgrade.effect.forEach(effect => {
-                if (effect.name === 'perClick') {
-                    sum = sum.plus(Decimal.mul(upgrade.count, effect.value))
-                }
-            })
-        })
-        return sum;
-    }, [upgrades]);
-    const perTick = useMemo(() => {
-        let sum = new Decimal(0);
-        upgrades.forEach(upgrade => {
-            upgrade.effect.forEach(effect => {
-                if (effect.name === 'perTick') {
-                    sum = sum.plus(Decimal.mul(upgrade.count, effect.value))
-                }
-            })
-        })
-        return sum;
-    }, [upgrades]);
-    const totalTickTimer = useMemo(() => {
-        let sum = new Decimal(__BASE_TICK_TIMER__);
-        upgrades.forEach(upgrade => {
-            upgrade.effect.forEach(effect => {
-                if (effect.name === 'tickTime') {
-                    sum = sum.plus(Decimal.mul(upgrade.count, effect.value))
-                }
-            })
-        })
-        return sum;
-    }, [upgrades]);
-
-    const autoClickerPrice = new Decimal(100).mul(new Decimal(10).pow(autoClickers));
-    useEffect(() => {
-        if (clicks.greaterThanOrEqualTo(maxClicks)) {
-            setMaxClicks(clicks);
-        }
-    }, [clicks, maxClicks]);
-
-    useEffect(() => {
-        localStorage.setItem('clickCount', clicks.toString());
-        localStorage.setItem('autoClickers', autoClickers.toString());
-        localStorage.setItem('upgrades', JSON.stringify(upgrades));
-        localStorage.setItem('saveVersion', __SAVE_VERSION__);
-        localStorage.setItem('saveTimeStamp', new Date().toISOString());
-        localStorage.setItem('maxClicks', maxClicks.toString());
-    }, [clicks, autoClickers, upgrades, maxClicks]);
 
     useEffect(() => {
         const timer = setInterval(() => {
-            if (autoClickers.eq(0)) {
-                return;
-            }
-            setClicks((clicks) => clicks.plus(totalPerClick.mul(autoClickers)).ceil());
+            setResources(prev => ({
+                coins: prev.coins + generators.coinMiner.level,
+                energy: prev.energy + generators.energyPlant.level,
+                data: prev.data + generators.dataCenter.level,
+            }));
         }, 1000);
-        return () => {
-            clearInterval(timer);
-        };
-    }, [autoClickers, totalPerClick, clicks]);
-    useEffect(() => {
-        const tickTimer = setInterval(() => {
-            if (perTick.eq(0)) {
-                return;
-            }
-            setClicks((clicks) => clicks.plus(perTick).ceil());
-        }, totalTickTimer.toNumber());
-        return () => {
-            clearInterval(tickTimer);
-        };
-    }, [perTick, totalTickTimer, clicks]);
 
-    function buyUpgrade(index: number) {
-        setUpgrades(prevUpgrades => {
-            const updatedUpgrades = [...prevUpgrades];
-            const upgrade = updatedUpgrades[index];
-            if (upgrade.soldOut || clicks.lessThan(upgrade.price)) {
-                return prevUpgrades;
-            }
-            const newCount = new Decimal(upgrade.count).plus(1).toString();
-            const newPrice = calculateUpgradePrice({...upgrade, count: newCount});
+        return () => clearInterval(timer);
+    }, [generators]);
 
-            updatedUpgrades[index] = {
-                ...upgrade,
-                count: newCount,
-                price: newPrice,
-                soldOut: new Decimal(newCount).greaterThanOrEqualTo(upgrade.stock)
-            };
-
-            return updatedUpgrades;
-        });
-
-
-    }
-
-    function calculateUpgradePrice(upgrade: Upgrade) {
-        const basePrice = new Decimal(upgrade.basePrice)
-        const count = new Decimal(upgrade.count)
-        switch (upgrade.formula) {
-            case 'formula1':
-                return basePrice.mul(count.plus(1)).mul(count.plus(1).pow(2)).ceil().toString();
-            case 'formula2':
-                return basePrice.mul(count.plus(1)).mul(count.plus(1).mul(2).pow(count.plus(1))).ceil().toString();
+    const upgradeGenerator = (type) => {
+        const cost = generators[type].cost;
+        if (resources.coins >= cost) {
+            setGenerators(prev => ({
+                ...prev,
+                [type]: {
+                    ...prev[type],
+                    level: prev[type].level + 1,
+                    cost: Math.floor(prev[type].cost * 1.15),
+                },
+            }));
+            setResources(prev => ({...prev, coins: prev.coins - cost}));
+            setStats(prev => ({...prev, generatorsOwned: prev.generatorsOwned + 1}));
         }
-        return upgrade.price
-    }
+    };
 
-    const click = useCallback(() => {
-        setClicks((clicks) => clicks.plus(totalPerClick).ceil());
-    }, [totalPerClick]);
+    const handleClick = () => {
+        setResources(prev => ({...prev, coins: prev.coins + 1}));
+        setStats(prev => ({
+            ...prev,
+            totalClicks: prev.totalClicks + 1,
+            totalResources: prev.totalResources + 1
+        }));
+    };
 
     return (
-        <div style={{display: 'flex'}}>
-            <div style={{flex: 2}}>
-                {maxClicks.eq(0) &&
-                    <h1>Click on owl!!</h1>
-                }
+        <div className="h-screen flex bg-gray-100">
+            <PersistentSidebar stats={stats} resources={resources}/>
 
-                <div className="owl">
-                    <img src={owl} onClick={click} className="logo" alt="An owl"/>
-                </div>
-                {maxClicks.greaterThan(0) &&
-                    <h1>{clicks.toString()}</h1>
-                }
-                {maxClicks.greaterThan(0) &&
-                    <p>+{totalPerClick.toString()} per click</p>
-                }
-                {autoClickers.greaterThan(0) &&
-                    <p>your {autoClickers.toString()}<CursorIcon className="icon"/> click every 1s</p>}
-                {perTick.greaterThan(0) &&
-                    <p>your generators make +{perTick.toString()} per {totalTickTimer.div(1000).toString()}s</p>}
+            <div className="flex-grow flex flex-col p-4 overflow-hidden">
+                <h1 className="text-3xl font-bold mb-4">Clicker Game Dashboard</h1>
 
-                {maxClicks.greaterThanOrEqualTo(100) && <div className="card">
-                    buy an Auto Clicker<CursorIcon className="icon"/>
-                    <div>
-                        <button disabled={clicks.lessThan(autoClickerPrice)} onClick={() => {
-                            setClicks((clicks) => clicks.minus(autoClickerPrice).ceil());
-                            setAutoClickers((autoClickers) => autoClickers.plus(1));
-                        }}>{autoClickerPrice.toString()}
-                        </button>
+                <Tabs defaultValue="main" className="flex-grow flex flex-col">
+                    <TabsList className="mb-4">
+                        <TabsTrigger value="main">Main</TabsTrigger>
+                        <TabsTrigger value="generators">Generators</TabsTrigger>
+                        <TabsTrigger value="research">Research</TabsTrigger>
+                        <TabsTrigger value="quests">Quests</TabsTrigger>
+                        <TabsTrigger value="shop">Shop</TabsTrigger>
+                    </TabsList>
 
-                    </div>
-                </div>}
-                <p className="about">
-                    Vectors and icons by <a href="https://dribbble.com/reggid?ref=svgrepo.com"
-                                            target="_blank">Aslan</a> in
-                    CC Attribution License via <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
-                </p>
-                <p>
-                    Version - {__COMMIT_HASH__}
-                </p>
-                <button onClick={() => {
-                    localStorage.clear();
-                    window.location.reload();
-                }}>Reset
-                </button>
+                    <TabsContent value="main" className="flex-grow">
+                        <Tabs defaultValue="clicker">
+                            <TabsList>
+                                <TabsTrigger value="clicker">Clicker</TabsTrigger>
+                                <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="clicker">
+                                <div className="flex justify-center items-center h-full">
+                                    <Button onClick={handleClick} size="lg" className="p-8">
+                                        <Plus className="mr-2 h-6 w-6"/> Click for Coin
+                                    </Button>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="upgrades">
+                                <p>Upgrades content (to be implemented)</p>
+                            </TabsContent>
+                        </Tabs>
+                    </TabsContent>
+
+                    <TabsContent value="generators" className="flex-grow overflow-auto">
+                        <ScrollArea className="h-full">
+                            <GeneratorCard
+                                name="Coin Miner"
+                                level={generators.coinMiner.level}
+                                cost={generators.coinMiner.cost}
+                                onUpgrade={() => upgradeGenerator('coinMiner')}
+                                backgroundImage={generators.coinMiner.image}
+                            />
+                            <GeneratorCard
+                                name="Energy Plant"
+                                level={generators.energyPlant.level}
+                                cost={generators.energyPlant.cost}
+                                onUpgrade={() => upgradeGenerator('energyPlant')}
+                                backgroundImage={generators.energyPlant.image}
+                            />
+                            <GeneratorCard
+                                name="Data Center"
+                                level={generators.dataCenter.level}
+                                cost={generators.dataCenter.cost}
+                                onUpgrade={() => upgradeGenerator('dataCenter')}
+                                backgroundImage={generators.dataCenter.image}
+                            />
+                        </ScrollArea>
+                    </TabsContent>
+
+                    <TabsContent value="research">
+                        <p>Research content (to be implemented)</p>
+                    </TabsContent>
+
+                    <TabsContent value="quests">
+                        <p>Quests content (to be implemented)</p>
+                    </TabsContent>
+
+                    <TabsContent value="shop">
+                        <p>Shop content (to be implemented)</p>
+                    </TabsContent>
+                </Tabs>
             </div>
-            {maxClicks.greaterThanOrEqualTo(50) &&
-                <div style={{flex: 1, borderLeft: '1px solid #ccc', padding: '20px'}}>
-                    <h2>Upgrades</h2>
-                    {upgrades.map((upgrade, index) => (
-                        <div key={index}>
-                            <h3>{upgrade.name}</h3>
-                            <button disabled={clicks.lessThan(upgrade.price) || upgrade.soldOut} onClick={() => {
-                                setClicks((clicks) => clicks.minus(upgrade.price).ceil());
-                                buyUpgrade(index);
-                            }}>{upgrade.soldOut ? 'Sold out' : upgrade.price}</button>
-                            <p>{upgrade.count}/{upgrade.stock}</p>
-                        </div>
-                    ))}
-                </div>}
         </div>
-    )
-}
+    );
+};
 
-export default App
+export default ClickerGameDashboard;
