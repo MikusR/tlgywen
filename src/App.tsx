@@ -15,7 +15,8 @@ import {ModeToggle} from "@/components/mode-toggle.tsx";
 const ResourceCard = ({name, amount, icon: Icon, description}) => (
     <HoverCard>
         <HoverCardTrigger asChild>
-            <div className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer hover:bg-secondary">
+            <div
+                className="flex justify-between items-center mb-2 p-2 bg-muted rounded cursor-pointer hover:bg-secondary">
                 <div className="flex items-center">
                     <Icon className="h-4 w-4 mr-2 text-muted-foreground"/>
                     <span className="text-sm text-foreground">{name}</span>
@@ -195,7 +196,7 @@ const ClickerGameDashboard = () => {
 
                 <div className="flex-grow flex flex-col p-4 overflow-hidden">
                     <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
+                        <h1 className="text-3xl font-bold">Clicker Game</h1>
                         <ModeToggle/>
                     </div>
 
