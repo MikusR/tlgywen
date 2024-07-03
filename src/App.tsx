@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import {Grid, Zap, Database, Plus, ArrowUp, User} from 'lucide-react';
 import {Card} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
@@ -9,16 +9,18 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hover-card';
 import {useToast} from "@/components/ui/use-toast"
 import {Toaster} from "@/components/ui/toaster"
+import {ThemeProvider} from "@/components/theme-provider"
+import {ModeToggle} from "@/components/mode-toggle.tsx";
 
 const ResourceCard = ({name, amount, icon: Icon, description}) => (
     <HoverCard>
         <HoverCardTrigger asChild>
-            <div className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer">
+            <div className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer hover:bg-secondary">
                 <div className="flex items-center">
-                    <Icon className="h-4 w-4 mr-2 text-gray-400"/>
-                    <span className="text-sm text-gray-200">{name}</span>
+                    <Icon className="h-4 w-4 mr-2 text-muted-foreground"/>
+                    <span className="text-sm text-foreground">{name}</span>
                 </div>
-                <span className="text-sm font-bold text-gray-200">{amount.toLocaleString()}</span>
+                <span className="text-sm font-bold text-foreground">{amount.toLocaleString()}</span>
             </div>
         </HoverCardTrigger>
         <HoverCardContent className="w-80">
@@ -33,9 +35,9 @@ const ResourceCard = ({name, amount, icon: Icon, description}) => (
                         {description}
                     </p>
                     <div className="flex items-center pt-2">
-            <span className="text-xs text-muted-foreground">
-              Current amount: {amount.toLocaleString()}
-            </span>
+                        <span className="text-xs text-muted-foreground">
+                          Current amount: {amount.toLocaleString()}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -49,16 +51,16 @@ const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
             className="relative h-24 bg-cover bg-center"
             style={{backgroundImage: `url(${backgroundImage})`}}
         >
-            <div className="absolute inset-0 bg-black bg-opacity-50 p-2">
-                <div className="flex justify-between items-start h-full text-white">
+            <div className="absolute inset-0 bg-background/80 p-2">
+                <div className="flex justify-between items-start h-full">
                     <div>
-                        <h3 className="font-bold">{name}</h3>
-                        <p className="text-sm">Level: {level}</p>
+                        <h3 className="font-bold text-foreground">{name}</h3>
+                        <p className="text-sm text-muted-foreground">Level: {level}</p>
                     </div>
                     <Button
                         onClick={onUpgrade}
                         size="sm"
-                        className="bg-green-500 hover:bg-green-600"
+                        variant="secondary"
                     >
                         <ArrowUp className="h-4 w-4 mr-1"/>
                         {cost}
@@ -71,7 +73,7 @@ const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
 );
 
 const PersistentSidebar = ({stats, resources}) => (
-    <div className="w-64 bg-gray-800 p-4 text-white flex flex-col">
+    <div className="w-64 bg-card p-4 text-card-foreground flex flex-col">
         <div className="flex items-center space-x-4 mb-6">
             <Avatar>
                 <AvatarImage src="/api/placeholder/32/32" alt="Avatar"/>
@@ -79,7 +81,7 @@ const PersistentSidebar = ({stats, resources}) => (
             </Avatar>
             <div>
                 <h2 className="text-lg font-bold">Player Name</h2>
-                <p className="text-sm text-gray-400">Level {stats.level}</p>
+                <p className="text-sm text-muted-foreground">Level {stats.level}</p>
             </div>
         </div>
         <div className="mb-6">
@@ -103,7 +105,7 @@ const PersistentSidebar = ({stats, resources}) => (
                 description="Collected information used for research and progression."
             />
         </div>
-        <div className="space-y-2 mt-auto">
+        <div className="space-y-2 mt-auto text-muted-foreground">
             <p>Total Clicks: {stats.totalClicks}</p>
             <p>Total Resources: {stats.totalResources}</p>
             <p>Generators Owned: {stats.generatorsOwned}</p>
@@ -133,7 +135,6 @@ const ClickerGameDashboard = () => {
 
     const {toast} = useToast();
 
-
     const upgradeGenerator = (type) => {
         const cost = generators[type].cost;
         if (resources.coins >= cost) {
@@ -158,18 +159,16 @@ const ClickerGameDashboard = () => {
             totalResources: prev.totalResources + 1
         }));
 
-        // Check for random resource drop (0.5% chance)
         if (Math.random() < 0.005) {
             const dropPool = ['energy', 'data'];
             const droppedResource = dropPool[Math.floor(Math.random() * dropPool.length)];
-            const dropAmount = Math.floor(Math.random() * 10) + 1; // Random amount between 1 and 10
+            const dropAmount = Math.floor(Math.random() * 10) + 1;
 
             setResources(prev => ({
                 ...prev,
                 [droppedResource]: prev[droppedResource] + dropAmount
             }));
 
-            // Show toast notification for resource drop
             toast({
                 title: "Resource Drop!",
                 description: `You found ${dropAmount} ${droppedResource}!`,
@@ -179,81 +178,87 @@ const ClickerGameDashboard = () => {
     };
 
     return (
-        <div className="h-screen flex bg-gray-100">
-            <PersistentSidebar stats={stats} resources={resources}/>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <div className="h-screen flex bg-background text-foreground">
+                <PersistentSidebar stats={stats} resources={resources}/>
 
-            <div className="flex-grow flex flex-col p-4 overflow-hidden">
-                <h1 className="text-3xl font-bold mb-4">Clicker Game Dashboard</h1>
+                <div className="flex-grow flex flex-col p-4 overflow-hidden">
+                    <div className="flex justify-between items-center mb-4">
+                        <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
+                        <ModeToggle/>
+                    </div>
 
-                <Tabs defaultValue="main" className="flex-grow flex flex-col">
-                    <TabsList className="mb-4">
-                        <TabsTrigger value="main">Main</TabsTrigger>
-                        <TabsTrigger value="generators">Generators</TabsTrigger>
-                        <TabsTrigger value="research">Research</TabsTrigger>
-                        <TabsTrigger value="quests">Quests</TabsTrigger>
-                        <TabsTrigger value="shop">Shop</TabsTrigger>
-                    </TabsList>
 
-                    <TabsContent value="main" className="flex-grow">
-                        <Tabs defaultValue="clicker">
-                            <TabsList>
-                                <TabsTrigger value="clicker">Clicker</TabsTrigger>
-                                <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="clicker">
-                                <div className="flex justify-center items-center h-full">
-                                    <Button onClick={handleClick} size="lg" className="p-8">
-                                        <Plus className="mr-2 h-6 w-6"/> Click for Coin
-                                    </Button>
-                                </div>
-                            </TabsContent>
-                            <TabsContent value="upgrades">
-                                <p>Upgrades content (to be implemented)</p>
-                            </TabsContent>
-                        </Tabs>
-                    </TabsContent>
+                    <Tabs defaultValue="main" className="flex-grow flex flex-col">
+                        <TabsList className="mb-4">
+                            <TabsTrigger value="main">Main</TabsTrigger>
+                            <TabsTrigger value="generators">Generators</TabsTrigger>
+                            <TabsTrigger value="research">Research</TabsTrigger>
+                            <TabsTrigger value="quests">Quests</TabsTrigger>
+                            <TabsTrigger value="shop">Shop</TabsTrigger>
+                        </TabsList>
 
-                    <TabsContent value="generators" className="flex-grow overflow-auto">
-                        <ScrollArea className="h-full">
-                            <GeneratorCard
-                                name="Coin Miner"
-                                level={generators.coinMiner.level}
-                                cost={generators.coinMiner.cost}
-                                onUpgrade={() => upgradeGenerator('coinMiner')}
-                                backgroundImage={generators.coinMiner.image}
-                            />
-                            <GeneratorCard
-                                name="Energy Plant"
-                                level={generators.energyPlant.level}
-                                cost={generators.energyPlant.cost}
-                                onUpgrade={() => upgradeGenerator('energyPlant')}
-                                backgroundImage={generators.energyPlant.image}
-                            />
-                            <GeneratorCard
-                                name="Data Center"
-                                level={generators.dataCenter.level}
-                                cost={generators.dataCenter.cost}
-                                onUpgrade={() => upgradeGenerator('dataCenter')}
-                                backgroundImage={generators.dataCenter.image}
-                            />
-                        </ScrollArea>
-                    </TabsContent>
+                        <TabsContent value="main" className="flex-grow">
+                            <Tabs defaultValue="clicker">
+                                <TabsList>
+                                    <TabsTrigger value="clicker">Clicker</TabsTrigger>
+                                    <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="clicker">
+                                    <div className="flex justify-center items-center h-full">
+                                        <Button onClick={handleClick} size="lg" className="p-8">
+                                            <Plus className="mr-2 h-6 w-6"/> Click for Coin
+                                        </Button>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="upgrades">
+                                    <p>Upgrades content (to be implemented)</p>
+                                </TabsContent>
+                            </Tabs>
+                        </TabsContent>
 
-                    <TabsContent value="research">
-                        <p>Research content (to be implemented)</p>
-                    </TabsContent>
+                        <TabsContent value="generators" className="flex-grow overflow-auto">
+                            <ScrollArea className="h-full">
+                                <GeneratorCard
+                                    name="Coin Miner"
+                                    level={generators.coinMiner.level}
+                                    cost={generators.coinMiner.cost}
+                                    onUpgrade={() => upgradeGenerator('coinMiner')}
+                                    backgroundImage={generators.coinMiner.image}
+                                />
+                                <GeneratorCard
+                                    name="Energy Plant"
+                                    level={generators.energyPlant.level}
+                                    cost={generators.energyPlant.cost}
+                                    onUpgrade={() => upgradeGenerator('energyPlant')}
+                                    backgroundImage={generators.energyPlant.image}
+                                />
+                                <GeneratorCard
+                                    name="Data Center"
+                                    level={generators.dataCenter.level}
+                                    cost={generators.dataCenter.cost}
+                                    onUpgrade={() => upgradeGenerator('dataCenter')}
+                                    backgroundImage={generators.dataCenter.image}
+                                />
+                            </ScrollArea>
+                        </TabsContent>
 
-                    <TabsContent value="quests">
-                        <p>Quests content (to be implemented)</p>
-                    </TabsContent>
+                        <TabsContent value="research">
+                            <p>Research content (to be implemented)</p>
+                        </TabsContent>
 
-                    <TabsContent value="shop">
-                        <p>Shop content (to be implemented)</p>
-                    </TabsContent>
-                </Tabs>
+                        <TabsContent value="quests">
+                            <p>Quests content (to be implemented)</p>
+                        </TabsContent>
+
+                        <TabsContent value="shop">
+                            <p>Shop content (to be implemented)</p>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+                <Toaster/>
             </div>
-            <Toaster/>
-        </div>
+        </ThemeProvider>
     );
 };
 
