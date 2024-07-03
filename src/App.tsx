@@ -6,15 +6,41 @@ import {Progress} from '@/components/ui/progress';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
+import {HoverCard, HoverCardContent, HoverCardTrigger} from '@/components/ui/hover-card';
+import {useToast} from "@/components/ui/use-toast"
+import {Toaster} from "@/components/ui/toaster"
 
-const ResourceCard = ({name, amount, icon: Icon}) => (
-    <div className="flex justify-between items-center mb-2 bg-gray-700 p-2 rounded">
-        <div className="flex items-center">
-            <Icon className="h-4 w-4 mr-2 text-gray-400"/>
-            <span className="text-sm text-gray-200">{name}</span>
-        </div>
-        <span className="text-sm font-bold text-gray-200">{amount.toLocaleString()}</span>
-    </div>
+const ResourceCard = ({name, amount, icon: Icon, description}) => (
+    <HoverCard>
+        <HoverCardTrigger asChild>
+            <div className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer">
+                <div className="flex items-center">
+                    <Icon className="h-4 w-4 mr-2 text-gray-400"/>
+                    <span className="text-sm text-gray-200">{name}</span>
+                </div>
+                <span className="text-sm font-bold text-gray-200">{amount.toLocaleString()}</span>
+            </div>
+        </HoverCardTrigger>
+        <HoverCardContent className="w-80">
+            <div className="flex justify-between space-x-4">
+                <Avatar>
+                    <AvatarImage src="/api/placeholder/32/32"/>
+                    <AvatarFallback><Icon/></AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                    <h4 className="text-sm font-semibold">{name}</h4>
+                    <p className="text-sm">
+                        {description}
+                    </p>
+                    <div className="flex items-center pt-2">
+            <span className="text-xs text-muted-foreground">
+              Current amount: {amount.toLocaleString()}
+            </span>
+                    </div>
+                </div>
+            </div>
+        </HoverCardContent>
+    </HoverCard>
 );
 
 const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
@@ -58,9 +84,24 @@ const PersistentSidebar = ({stats, resources}) => (
         </div>
         <div className="mb-6">
             <h3 className="text-lg font-bold mb-2">Resources</h3>
-            <ResourceCard name="Coins" amount={resources.coins} icon={Grid}/>
-            <ResourceCard name="Energy" amount={resources.energy} icon={Zap}/>
-            <ResourceCard name="Data" amount={resources.data} icon={Database}/>
+            <ResourceCard
+                name="Coins"
+                amount={resources.coins}
+                icon={Grid}
+                description="The primary currency used for upgrades and purchases."
+            />
+            <ResourceCard
+                name="Energy"
+                amount={resources.energy}
+                icon={Zap}
+                description="Powers your operations and unlocks advanced features."
+            />
+            <ResourceCard
+                name="Data"
+                amount={resources.data}
+                icon={Database}
+                description="Collected information used for research and progression."
+            />
         </div>
         <div className="space-y-2 mt-auto">
             <p>Total Clicks: {stats.totalClicks}</p>
@@ -90,17 +131,8 @@ const ClickerGameDashboard = () => {
         generatorsOwned: 3,
     });
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setResources(prev => ({
-                coins: prev.coins + generators.coinMiner.level,
-                energy: prev.energy + generators.energyPlant.level,
-                data: prev.data + generators.dataCenter.level,
-            }));
-        }, 1000);
+    const {toast} = useToast();
 
-        return () => clearInterval(timer);
-    }, [generators]);
 
     const upgradeGenerator = (type) => {
         const cost = generators[type].cost;
@@ -125,6 +157,25 @@ const ClickerGameDashboard = () => {
             totalClicks: prev.totalClicks + 1,
             totalResources: prev.totalResources + 1
         }));
+
+        // Check for random resource drop (0.5% chance)
+        if (Math.random() < 0.005) {
+            const dropPool = ['energy', 'data'];
+            const droppedResource = dropPool[Math.floor(Math.random() * dropPool.length)];
+            const dropAmount = Math.floor(Math.random() * 10) + 1; // Random amount between 1 and 10
+
+            setResources(prev => ({
+                ...prev,
+                [droppedResource]: prev[droppedResource] + dropAmount
+            }));
+
+            // Show toast notification for resource drop
+            toast({
+                title: "Resource Drop!",
+                description: `You found ${dropAmount} ${droppedResource}!`,
+                duration: 3000,
+            });
+        }
     };
 
     return (
@@ -201,6 +252,7 @@ const ClickerGameDashboard = () => {
                     </TabsContent>
                 </Tabs>
             </div>
+            <Toaster/>
         </div>
     );
 };
