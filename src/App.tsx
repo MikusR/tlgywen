@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {Grid, Zap, Database, Plus, ArrowUp, User} from 'lucide-react';
 import {Card} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
@@ -26,7 +26,6 @@ const ResourceCard = ({name, amount, icon: Icon, description}) => (
         <HoverCardContent className="w-80">
             <div className="flex justify-between space-x-4">
                 <Avatar>
-                    <AvatarImage src="/api/placeholder/32/32"/>
                     <AvatarFallback><Icon/></AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
@@ -76,11 +75,11 @@ const PersistentSidebar = ({stats, resources}) => (
     <div className="w-64 bg-card p-4 text-card-foreground flex flex-col">
         <div className="flex items-center space-x-4 mb-6">
             <Avatar>
-                <AvatarImage src="/api/placeholder/32/32" alt="Avatar"/>
+                <AvatarImage src="src/assets/owl.svg" alt="Avatar"/>
                 <AvatarFallback><User/></AvatarFallback>
             </Avatar>
             <div>
-                <h2 className="text-lg font-bold">Player Name</h2>
+                <h2 className="text-lg font-bold">Owl</h2>
                 <p className="text-sm text-muted-foreground">Level {stats.level}</p>
             </div>
         </div>
@@ -134,6 +133,18 @@ const ClickerGameDashboard = () => {
     });
 
     const {toast} = useToast();
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setResources(prev => ({
+                coins: prev.coins + generators.coinMiner.level,
+                energy: prev.energy + generators.energyPlant.level,
+                data: prev.data + generators.dataCenter.level,
+            }));
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [generators]);
 
     const upgradeGenerator = (type) => {
         const cost = generators[type].cost;
