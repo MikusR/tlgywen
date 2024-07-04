@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {LucideIcon, Grid, Zap, Database, Plus, ArrowUp, User} from 'lucide-react';
+import {Plus, ArrowUp, User} from 'lucide-react';
 import {Card} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Progress} from '@/components/ui/progress';
@@ -42,10 +42,11 @@ interface Generators {
 }
 
 // Props for components
+
 interface ResourceCardProps {
     name: string;
     amount: number;
-    icon: LucideIcon;
+    image: string;
     description: string;
 }
 
@@ -62,21 +63,19 @@ interface PersistentSidebarProps {
     resources: Resources;
 }
 
-// Main component state
-// interface ClickerGameState {
-//     resources: Resources;
-//     generators: Generators;
-//     stats: Stats;
-// }
+const coinImage = "src/assets/generators/coins.jpg";
+const energyImage = "src/assets/generators/energy.jpg";
+const dataImage = "src/assets/generators/data.jpg";
 
-const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, icon: Icon, description}) => {
+
+const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, image, description}) => {
     return (
         <HoverCard>
             <HoverCardTrigger asChild>
                 <div
                     className="flex justify-between items-center mb-2 p-2 bg-muted/90 rounded cursor-pointer hover:bg-secondary">
                     <div className="flex items-center">
-                        <Icon className="h-4 w-4 mr-2 text-muted-foreground"/>
+                        <img src={image} alt={name} className="h-6 w-6 mr-2 object-cover rounded"/>
                         <span className="text-sm text-foreground">{name}</span>
                     </div>
                     <span className="text-sm font-bold text-foreground">{amount.toLocaleString()}</span>
@@ -85,7 +84,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, icon: Icon, de
             <HoverCardContent className="w-80">
                 <div className="flex justify-between space-x-4">
                     <Avatar>
-                        <AvatarFallback><Icon/></AvatarFallback>
+                        <AvatarFallback>
+                            <img src={image} alt={name} className="h-full w-full object-cover"/>
+                        </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
                         <h4 className="text-sm font-semibold">{name}</h4>
@@ -149,19 +150,19 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources})
             <ResourceCard
                 name="Coins"
                 amount={resources.coins}
-                icon={Grid}
+                image={coinImage}
                 description="The primary currency used for upgrades and purchases."
             />
             <ResourceCard
                 name="Energy"
                 amount={resources.energy}
-                icon={Zap}
+                image={energyImage}
                 description="Powers your operations and unlocks advanced features."
             />
             <ResourceCard
                 name="Data"
                 amount={resources.data}
-                icon={Database}
+                image={dataImage}
                 description="Collected information used for research and progression."
             />
         </div>
@@ -172,6 +173,7 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources})
         </div>
     </div>
 );
+
 
 const ClickerGameDashboard: React.FC = () => {
     const [resources, setResources] = useState<Resources>({
@@ -184,17 +186,17 @@ const ClickerGameDashboard: React.FC = () => {
         coinMiner: {
             level: 1,
             cost: 10,
-            image: "src/assets/generators/coins.jpg"
+            image: coinImage
         },
         energyPlant: {
             level: 1,
             cost: 20,
-            image: "src/assets/generators/energy.jpg"
+            image: energyImage
         },
         dataCenter: {
             level: 1,
             cost: 30,
-            image: "src/assets/generators/data.jpg"
+            image: dataImage
         },
     });
 
