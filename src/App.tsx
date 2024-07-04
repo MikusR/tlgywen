@@ -12,11 +12,13 @@ import {Toaster} from "@/components/ui/toaster"
 import {ThemeProvider} from "@/components/theme-provider"
 import {ModeToggle} from "@/components/mode-toggle.tsx";
 
+import backgroundSvg from "@/assets/leaves-6975462.svg"
+
 const ResourceCard = ({name, amount, icon: Icon, description}) => (
     <HoverCard>
         <HoverCardTrigger asChild>
             <div
-                className="flex justify-between items-center mb-2 p-2 bg-muted rounded cursor-pointer hover:bg-secondary">
+                className="flex justify-between items-center mb-2 p-2 bg-muted/90 rounded cursor-pointer hover:bg-secondary">
                 <div className="flex items-center">
                     <Icon className="h-4 w-4 mr-2 text-muted-foreground"/>
                     <span className="text-sm text-foreground">{name}</span>
@@ -51,7 +53,7 @@ const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
             className="relative h-24 bg-cover bg-center"
             style={{backgroundImage: `url(${backgroundImage})`}}
         >
-            <div className="absolute inset-0 bg-background/80 p-2">
+            <div className="absolute inset-0 bg-background/90 p-2">
                 <div className="flex justify-between items-start h-full">
                     <div>
                         <h3 className="font-bold text-foreground">{name}</h3>
@@ -73,7 +75,7 @@ const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
 );
 
 const PersistentSidebar = ({stats, resources}) => (
-    <div className="w-64 bg-card p-4 text-card-foreground flex flex-col">
+    <div className="w-64 bg-card/90 p-4 text-card-foreground flex flex-col rounded-lg">
         <div className="flex items-center space-x-4 mb-6">
             <Avatar>
                 <AvatarImage src="src/assets/owl.svg" alt="Avatar"/>
@@ -191,82 +193,86 @@ const ClickerGameDashboard = () => {
 
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <div className="h-screen flex bg-background text-foreground">
-                <PersistentSidebar stats={stats} resources={resources}/>
+            <div className="relative min-h-screen bg-transparent">
+                <img src={backgroundSvg} alt="Background" className="fixed inset-0 w-full h-full object-cover -z-10"/>
+                <div className="absolute inset-0 bg-background/90">
+                    <div className="h-full flex">
+                        <PersistentSidebar stats={stats} resources={resources}/>
+                        <div className="flex-grow flex flex-col p-4 overflow-hidden">
+                            <div className="flex justify-between items-center mb-4">
+                                <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
+                                <ModeToggle/>
+                            </div>
 
-                <div className="flex-grow flex flex-col p-4 overflow-hidden">
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-3xl font-bold">Clicker Game</h1>
-                        <ModeToggle/>
-                    </div>
-
-
-                    <Tabs defaultValue="main" className="flex-grow flex flex-col">
-                        <TabsList className="mb-4">
-                            <TabsTrigger value="main">Main</TabsTrigger>
-                            <TabsTrigger value="generators">Generators</TabsTrigger>
-                            <TabsTrigger value="research">Research</TabsTrigger>
-                            <TabsTrigger value="quests">Quests</TabsTrigger>
-                            <TabsTrigger value="shop">Shop</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="main" className="flex-grow">
-                            <Tabs defaultValue="clicker">
-                                <TabsList>
-                                    <TabsTrigger value="clicker">Clicker</TabsTrigger>
-                                    <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
+                            <Tabs defaultValue="main" className="flex-grow flex flex-col">
+                                <TabsList className="mb-4 bg-background/90">
+                                    <TabsTrigger value="main">Main</TabsTrigger>
+                                    <TabsTrigger value="generators">Generators</TabsTrigger>
+                                    <TabsTrigger value="research">Research</TabsTrigger>
+                                    <TabsTrigger value="quests">Quests</TabsTrigger>
+                                    <TabsTrigger value="shop">Shop</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="clicker">
-                                    <div className="flex justify-center items-center h-full">
-                                        <Button onClick={handleClick} size="lg" className="p-8">
-                                            <Plus className="mr-2 h-6 w-6"/> Click for Coin
-                                        </Button>
-                                    </div>
+
+                                <TabsContent value="main" className="flex-grow bg-card/90 rounded-lg p-4">
+                                    <Tabs defaultValue="clicker">
+                                        <TabsList>
+                                            <TabsTrigger value="clicker">Clicker</TabsTrigger>
+                                            <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="clicker">
+                                            <div className="flex justify-center items-center h-full">
+                                                <Button onClick={handleClick} size="lg" className="p-8">
+                                                    <Plus className="mr-2 h-6 w-6"/> Click for Coin
+                                                </Button>
+                                            </div>
+                                        </TabsContent>
+                                        <TabsContent value="upgrades">
+                                            <p>Upgrades content (to be implemented)</p>
+                                        </TabsContent>
+                                    </Tabs>
                                 </TabsContent>
-                                <TabsContent value="upgrades">
-                                    <p>Upgrades content (to be implemented)</p>
+
+                                <TabsContent value="generators"
+                                             className="flex-grow overflow-auto bg-card/90 rounded-lg p-4">
+                                    <ScrollArea className="h-full">
+                                        <GeneratorCard
+                                            name="Coin Miner"
+                                            level={generators.coinMiner.level}
+                                            cost={generators.coinMiner.cost}
+                                            onUpgrade={() => upgradeGenerator('coinMiner')}
+                                            backgroundImage={generators.coinMiner.image}
+                                        />
+                                        <GeneratorCard
+                                            name="Energy Plant"
+                                            level={generators.energyPlant.level}
+                                            cost={generators.energyPlant.cost}
+                                            onUpgrade={() => upgradeGenerator('energyPlant')}
+                                            backgroundImage={generators.energyPlant.image}
+                                        />
+                                        <GeneratorCard
+                                            name="Data Center"
+                                            level={generators.dataCenter.level}
+                                            cost={generators.dataCenter.cost}
+                                            onUpgrade={() => upgradeGenerator('dataCenter')}
+                                            backgroundImage={generators.dataCenter.image}
+                                        />
+                                    </ScrollArea>
+                                </TabsContent>
+
+                                <TabsContent value="research">
+                                    <p>Research content (to be implemented)</p>
+                                </TabsContent>
+
+                                <TabsContent value="quests">
+                                    <p>Quests content (to be implemented)</p>
+                                </TabsContent>
+
+                                <TabsContent value="shop">
+                                    <p>Shop content (to be implemented)</p>
                                 </TabsContent>
                             </Tabs>
-                        </TabsContent>
-
-                        <TabsContent value="generators" className="flex-grow overflow-auto">
-                            <ScrollArea className="h-full">
-                                <GeneratorCard
-                                    name="Coin Miner"
-                                    level={generators.coinMiner.level}
-                                    cost={generators.coinMiner.cost}
-                                    onUpgrade={() => upgradeGenerator('coinMiner')}
-                                    backgroundImage={generators.coinMiner.image}
-                                />
-                                <GeneratorCard
-                                    name="Energy Plant"
-                                    level={generators.energyPlant.level}
-                                    cost={generators.energyPlant.cost}
-                                    onUpgrade={() => upgradeGenerator('energyPlant')}
-                                    backgroundImage={generators.energyPlant.image}
-                                />
-                                <GeneratorCard
-                                    name="Data Center"
-                                    level={generators.dataCenter.level}
-                                    cost={generators.dataCenter.cost}
-                                    onUpgrade={() => upgradeGenerator('dataCenter')}
-                                    backgroundImage={generators.dataCenter.image}
-                                />
-                            </ScrollArea>
-                        </TabsContent>
-
-                        <TabsContent value="research">
-                            <p>Research content (to be implemented)</p>
-                        </TabsContent>
-
-                        <TabsContent value="quests">
-                            <p>Quests content (to be implemented)</p>
-                        </TabsContent>
-
-                        <TabsContent value="shop">
-                            <p>Shop content (to be implemented)</p>
-                        </TabsContent>
-                    </Tabs>
+                        </div>
+                    </div>
                 </div>
                 <Toaster/>
             </div>
