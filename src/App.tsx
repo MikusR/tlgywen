@@ -1,5 +1,5 @@
-import {useState, useEffect} from 'react';
-import {Grid, Zap, Database, Plus, ArrowUp, User} from 'lucide-react';
+import React, {useState, useEffect} from 'react';
+import {LucideIcon, Grid, Zap, Database, Plus, ArrowUp, User} from 'lucide-react';
 import {Card} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Progress} from '@/components/ui/progress';
@@ -14,40 +14,97 @@ import {ModeToggle} from "@/components/mode-toggle.tsx";
 
 import backgroundSvg from "@/assets/leaves-6975462.svg"
 
-const ResourceCard = ({name, amount, icon: Icon, description}) => (
-    <HoverCard>
-        <HoverCardTrigger asChild>
-            <div
-                className="flex justify-between items-center mb-2 p-2 bg-muted/90 rounded cursor-pointer hover:bg-secondary">
-                <div className="flex items-center">
-                    <Icon className="h-4 w-4 mr-2 text-muted-foreground"/>
-                    <span className="text-sm text-foreground">{name}</span>
+type ResourceType = 'coins' | 'energy' | 'data';
+
+interface Resources {
+    coins: number;
+    energy: number;
+    data: number;
+}
+
+interface Stats {
+    level: number;
+    totalClicks: number;
+    totalResources: number;
+    generatorsOwned: number;
+}
+
+interface Generator {
+    level: number;
+    cost: number;
+    image: string;
+}
+
+interface Generators {
+    coinMiner: Generator;
+    energyPlant: Generator;
+    dataCenter: Generator;
+}
+
+// Props for components
+interface ResourceCardProps {
+    name: string;
+    amount: number;
+    icon: LucideIcon;
+    description: string;
+}
+
+interface GeneratorCardProps {
+    name: string;
+    level: number;
+    cost: number;
+    onUpgrade: () => void;
+    backgroundImage: string;
+}
+
+interface PersistentSidebarProps {
+    stats: Stats;
+    resources: Resources;
+}
+
+// Main component state
+// interface ClickerGameState {
+//     resources: Resources;
+//     generators: Generators;
+//     stats: Stats;
+// }
+
+const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, icon: Icon, description}) => {
+    return (
+        <HoverCard>
+            <HoverCardTrigger asChild>
+                <div
+                    className="flex justify-between items-center mb-2 p-2 bg-muted/90 rounded cursor-pointer hover:bg-secondary">
+                    <div className="flex items-center">
+                        <Icon className="h-4 w-4 mr-2 text-muted-foreground"/>
+                        <span className="text-sm text-foreground">{name}</span>
+                    </div>
+                    <span className="text-sm font-bold text-foreground">{amount.toLocaleString()}</span>
                 </div>
-                <span className="text-sm font-bold text-foreground">{amount.toLocaleString()}</span>
-            </div>
-        </HoverCardTrigger>
-        <HoverCardContent className="w-80">
-            <div className="flex justify-between space-x-4">
-                <Avatar>
-                    <AvatarFallback><Icon/></AvatarFallback>
-                </Avatar>
-                <div className="space-y-1">
-                    <h4 className="text-sm font-semibold">{name}</h4>
-                    <p className="text-sm">
-                        {description}
-                    </p>
-                    <div className="flex items-center pt-2">
-                        <span className="text-xs text-muted-foreground">
-                          Current amount: {amount.toLocaleString()}
-                        </span>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80">
+                <div className="flex justify-between space-x-4">
+                    <Avatar>
+                        <AvatarFallback><Icon/></AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                        <h4 className="text-sm font-semibold">{name}</h4>
+                        <p className="text-sm">
+                            {description}
+                        </p>
+                        <div className="flex items-center pt-2">
+                            <span className="text-xs text-muted-foreground">
+                              Current amount: {amount.toLocaleString()}
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </HoverCardContent>
-    </HoverCard>
-);
+            </HoverCardContent>
+        </HoverCard>
+    );
+};
 
-const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
+const GeneratorCard: React.FC<GeneratorCardProps> = ({name, level, cost, onUpgrade, backgroundImage}) => (
     <Card className="mb-2 overflow-hidden">
         <div
             className="relative h-24 bg-cover bg-center"
@@ -74,7 +131,7 @@ const GeneratorCard = ({name, level, cost, onUpgrade, backgroundImage}) => (
     </Card>
 );
 
-const PersistentSidebar = ({stats, resources}) => (
+const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources}) => (
     <div className="w-64 bg-card/90 p-4 text-card-foreground flex flex-col rounded-lg">
         <div className="flex items-center space-x-4 mb-6">
             <Avatar>
@@ -115,20 +172,20 @@ const PersistentSidebar = ({stats, resources}) => (
     </div>
 );
 
-const ClickerGameDashboard = () => {
-    const [resources, setResources] = useState({
+const ClickerGameDashboard: React.FC = () => {
+    const [resources, setResources] = useState<Resources>({
         coins: 0,
         energy: 0,
         data: 0,
     });
 
-    const [generators, setGenerators] = useState({
+    const [generators, setGenerators] = useState<Generators>({
         coinMiner: {level: 1, cost: 10, image: "/api/placeholder/256/144"},
         energyPlant: {level: 1, cost: 20, image: "/api/placeholder/256/144"},
         dataCenter: {level: 1, cost: 30, image: "/api/placeholder/256/144"},
     });
 
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState<Stats>({
         level: 1,
         totalClicks: 0,
         totalResources: 0,
@@ -146,10 +203,12 @@ const ClickerGameDashboard = () => {
             }));
         }, 1000);
 
-        return () => clearInterval(timer);
+        return () => {
+            clearInterval(timer);
+        };
     }, [generators]);
 
-    const upgradeGenerator = (type) => {
+    const upgradeGenerator = (type: keyof Generators) => {
         const cost = generators[type].cost;
         if (resources.coins >= cost) {
             setGenerators(prev => ({
@@ -174,7 +233,7 @@ const ClickerGameDashboard = () => {
         }));
 
         if (Math.random() < 0.005) {
-            const dropPool = ['energy', 'data'];
+            const dropPool: ResourceType[] = ['energy', 'data'];
             const droppedResource = dropPool[Math.floor(Math.random() * dropPool.length)];
             const dropAmount = Math.floor(Math.random() * 10) + 1;
 
@@ -185,7 +244,7 @@ const ClickerGameDashboard = () => {
 
             toast({
                 title: "Resource Drop!",
-                description: `You found ${dropAmount} ${droppedResource}!`,
+                description: `You found ${dropAmount.toString()} ${droppedResource}!`,
                 duration: 3000,
             });
         }
@@ -239,21 +298,27 @@ const ClickerGameDashboard = () => {
                                             name="Coin Miner"
                                             level={generators.coinMiner.level}
                                             cost={generators.coinMiner.cost}
-                                            onUpgrade={() => upgradeGenerator('coinMiner')}
+                                            onUpgrade={() => {
+                                                upgradeGenerator('coinMiner');
+                                            }}
                                             backgroundImage={generators.coinMiner.image}
                                         />
                                         <GeneratorCard
                                             name="Energy Plant"
                                             level={generators.energyPlant.level}
                                             cost={generators.energyPlant.cost}
-                                            onUpgrade={() => upgradeGenerator('energyPlant')}
+                                            onUpgrade={() => {
+                                                upgradeGenerator('energyPlant');
+                                            }}
                                             backgroundImage={generators.energyPlant.image}
                                         />
                                         <GeneratorCard
                                             name="Data Center"
                                             level={generators.dataCenter.level}
                                             cost={generators.dataCenter.cost}
-                                            onUpgrade={() => upgradeGenerator('dataCenter')}
+                                            onUpgrade={() => {
+                                                upgradeGenerator('dataCenter');
+                                            }}
                                             backgroundImage={generators.dataCenter.image}
                                         />
                                     </ScrollArea>
