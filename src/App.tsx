@@ -11,8 +11,11 @@ import {useToast} from "@/components/ui/use-toast"
 import {Toaster} from "@/components/ui/toaster"
 import {ThemeProvider} from "@/components/theme-provider"
 import {ModeToggle} from "@/components/mode-toggle.tsx";
-
+import coinImage from "@/assets/generators/coins.jpg";
+import energyImage from "@/assets/generators/energy.jpg";
+import dataImage from "@/assets/generators/data.jpg";
 import backgroundSvg from "@/assets/leaves-6975462.svg"
+import owlImage from "@/assets/owl.svg"
 
 type ResourceType = 'coins' | 'energy' | 'data';
 
@@ -62,10 +65,6 @@ interface PersistentSidebarProps {
     stats: Stats;
     resources: Resources;
 }
-
-const coinImage = "src/assets/generators/coins.jpg";
-const energyImage = "src/assets/generators/energy.jpg";
-const dataImage = "src/assets/generators/data.jpg";
 
 
 const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, image, description}) => {
@@ -137,7 +136,7 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources})
     <div className="w-64 bg-card/90 p-4 text-card-foreground flex flex-col rounded-lg">
         <div className="flex items-center space-x-4 mb-6">
             <Avatar>
-                <AvatarImage src="src/assets/owl.svg" alt="Avatar"/>
+                <AvatarImage src={owlImage} alt="Avatar"/>
                 <AvatarFallback><User/></AvatarFallback>
             </Avatar>
             <div>
@@ -278,7 +277,7 @@ const ClickerGameDashboard: React.FC = () => {
                                 <ModeToggle/>
                             </div>
 
-                            <Tabs defaultValue="main" className="flex-grow flex flex-col">
+                            <Tabs defaultValue="generators" className="flex-grow flex flex-col">
                                 <TabsList className="mb-4 bg-background/90">
                                     <TabsTrigger value="main">Main</TabsTrigger>
                                     <TabsTrigger value="generators">Generators</TabsTrigger>
