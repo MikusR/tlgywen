@@ -106,11 +106,12 @@ const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, icon: Icon, de
 
 const GeneratorCard: React.FC<GeneratorCardProps> = ({name, level, cost, onUpgrade, backgroundImage}) => (
     <Card className="mb-2 overflow-hidden">
-        <div
-            className="relative h-24 bg-cover bg-center"
-            style={{backgroundImage: `url(${backgroundImage})`}}
-        >
-            <div className="absolute inset-0 bg-background/90 p-2">
+        <div className="flex h-24">
+            <div
+                className="w-24 h-24 bg-cover bg-center flex-shrink-0"
+                style={{backgroundImage: `url(${backgroundImage})`}}
+            />
+            <div className="flex-grow p-2 relative">
                 <div className="flex justify-between items-start h-full">
                     <div>
                         <h3 className="font-bold text-foreground">{name}</h3>
@@ -180,9 +181,21 @@ const ClickerGameDashboard: React.FC = () => {
     });
 
     const [generators, setGenerators] = useState<Generators>({
-        coinMiner: {level: 1, cost: 10, image: "/api/placeholder/256/144"},
-        energyPlant: {level: 1, cost: 20, image: "/api/placeholder/256/144"},
-        dataCenter: {level: 1, cost: 30, image: "/api/placeholder/256/144"},
+        coinMiner: {
+            level: 1,
+            cost: 10,
+            image: "src/assets/generators/coins.jpg"
+        },
+        energyPlant: {
+            level: 1,
+            cost: 20,
+            image: "src/assets/generators/energy.jpg"
+        },
+        dataCenter: {
+            level: 1,
+            cost: 30,
+            image: "src/assets/generators/data.jpg"
+        },
     });
 
     const [stats, setStats] = useState<Stats>({
