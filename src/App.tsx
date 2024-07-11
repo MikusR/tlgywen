@@ -72,9 +72,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, image, descrip
         <HoverCard>
             <HoverCardTrigger asChild>
                 <div
-                    className="flex justify-between items-center mb-2 p-2 bg-muted/90 rounded cursor-pointer hover:bg-secondary">
+                    className="flex items-center justify-between p-2 mb-2 rounded cursor-pointer bg-muted/90 hover:bg-secondary">
                     <div className="flex items-center">
-                        <img src={image} alt={name} className="h-6 w-6 mr-2 object-cover rounded"/>
+                        <img src={image} alt={name} className="object-cover w-6 h-6 mr-2 rounded"/>
                         <span className="text-sm text-foreground">{name}</span>
                     </div>
                     <span className="text-sm font-bold text-foreground">{amount.toLocaleString()}</span>
@@ -84,7 +84,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({name, amount, image, descrip
                 <div className="flex justify-between space-x-4">
                     <Avatar>
                         <AvatarFallback>
-                            <img src={image} alt={name} className="h-full w-full object-cover"/>
+                            <img src={image} alt={name} className="object-cover w-full h-full"/>
                         </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
@@ -108,11 +108,11 @@ const GeneratorCard: React.FC<GeneratorCardProps> = ({name, level, cost, onUpgra
     <Card className="mb-2 overflow-hidden">
         <div className="flex h-24">
             <div
-                className="w-24 h-24 bg-cover bg-center flex-shrink-0"
+                className="flex-shrink-0 w-24 h-24 bg-center bg-cover"
                 style={{backgroundImage: `url(${backgroundImage})`}}
             />
-            <div className="flex-grow p-2 relative">
-                <div className="flex justify-between items-start h-full">
+            <div className="relative flex-grow p-2">
+                <div className="flex items-start justify-between h-full">
                     <div>
                         <h3 className="font-bold text-foreground">{name}</h3>
                         <p className="text-sm text-muted-foreground">Level: {level}</p>
@@ -122,7 +122,7 @@ const GeneratorCard: React.FC<GeneratorCardProps> = ({name, level, cost, onUpgra
                         size="sm"
                         variant="secondary"
                     >
-                        <ArrowUp className="h-4 w-4 mr-1"/>
+                        <ArrowUp className="w-4 h-4 mr-1"/>
                         {cost}
                     </Button>
                 </div>
@@ -133,8 +133,8 @@ const GeneratorCard: React.FC<GeneratorCardProps> = ({name, level, cost, onUpgra
 );
 
 const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources}) => (
-    <div className="w-64 bg-card/90 p-4 text-card-foreground flex flex-col rounded-lg">
-        <div className="flex items-center space-x-4 mb-6">
+    <div className="flex flex-col w-64 p-4 rounded-lg bg-card/90 text-card-foreground">
+        <div className="flex items-center mb-6 space-x-4">
             <Avatar>
                 <AvatarImage src={owlImage} alt="Avatar"/>
                 <AvatarFallback><User/></AvatarFallback>
@@ -145,7 +145,7 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources})
             </div>
         </div>
         <div className="mb-6">
-            <h3 className="text-lg font-bold mb-2">Resources</h3>
+            <h3 className="mb-2 text-lg font-bold">Resources</h3>
             <ResourceCard
                 name="Coins"
                 amount={resources.coins}
@@ -165,7 +165,7 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources})
                 description="Collected information used for research and progression."
             />
         </div>
-        <div className="space-y-2 mt-auto text-muted-foreground">
+        <div className="mt-auto space-y-2 text-muted-foreground">
             <p>Total Clicks: {stats.totalClicks}</p>
             <p>Total Resources: {stats.totalResources}</p>
             <p>Generators Owned: {stats.generatorsOwned}</p>
@@ -246,7 +246,7 @@ const ClickerGameDashboard: React.FC = () => {
             totalResources: prev.totalResources + 1
         }));
 
-        if (Math.random() < 0.005) {
+        if (Math.random() < .1) {
             const dropPool: ResourceType[] = ['energy', 'data'];
             const droppedResource = dropPool[Math.floor(Math.random() * dropPool.length)];
             const dropAmount = Math.floor(Math.random() * 10) + 1;
@@ -267,17 +267,17 @@ const ClickerGameDashboard: React.FC = () => {
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <div className="relative min-h-screen bg-transparent">
-                <img src={backgroundSvg} alt="Background" className="fixed inset-0 w-full h-full object-cover -z-10"/>
+                <img src={backgroundSvg} alt="Background" className="fixed inset-0 object-cover w-full h-full -z-10"/>
                 <div className="absolute inset-0 bg-background/90">
-                    <div className="h-full flex">
+                    <div className="flex h-full">
                         <PersistentSidebar stats={stats} resources={resources}/>
-                        <div className="flex-grow flex flex-col p-4 overflow-hidden">
-                            <div className="flex justify-between items-center mb-4">
+                        <div className="flex flex-col flex-grow p-4 overflow-hidden">
+                            <div className="flex items-center justify-between mb-4">
                                 <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
                                 <ModeToggle/>
                             </div>
 
-                            <Tabs defaultValue="generators" className="flex-grow flex flex-col">
+                            <Tabs defaultValue="generators" className="flex flex-col flex-grow">
                                 <TabsList className="mb-4 bg-background/90">
                                     <TabsTrigger value="main">Main</TabsTrigger>
                                     <TabsTrigger value="generators">Generators</TabsTrigger>
@@ -286,16 +286,16 @@ const ClickerGameDashboard: React.FC = () => {
                                     <TabsTrigger value="shop">Shop</TabsTrigger>
                                 </TabsList>
 
-                                <TabsContent value="main" className="flex-grow bg-card/90 rounded-lg p-4">
+                                <TabsContent value="main" className="flex-grow p-4 rounded-lg bg-card/90">
                                     <Tabs defaultValue="clicker">
                                         <TabsList>
                                             <TabsTrigger value="clicker">Clicker</TabsTrigger>
                                             <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
                                         </TabsList>
                                         <TabsContent value="clicker">
-                                            <div className="flex justify-center items-center h-full">
+                                            <div className="flex items-center justify-center h-full">
                                                 <Button onClick={handleClick} size="lg" className="p-8">
-                                                    <Plus className="mr-2 h-6 w-6"/> Click for Coin
+                                                    <Plus className="w-6 h-6 mr-2"/> Click for Coin
                                                 </Button>
                                             </div>
                                         </TabsContent>
@@ -306,7 +306,7 @@ const ClickerGameDashboard: React.FC = () => {
                                 </TabsContent>
 
                                 <TabsContent value="generators"
-                                             className="flex-grow overflow-auto bg-card/90 rounded-lg p-4">
+                                             className="flex-grow p-4 overflow-auto rounded-lg bg-card/90">
                                     <ScrollArea className="h-full">
                                         <GeneratorCard
                                             name="Coin Miner"
