@@ -27,6 +27,16 @@ export interface Generators {
   ironMiner: Generator;
 }
 
+export interface Upgrades {
+  autoClickers: Upgrade;
+}
+
+export interface Upgrade {
+  level: number;
+  cost: number;
+  image: string;
+}
+
 export type ResourceType =
   | "coins"
   | "wood"
