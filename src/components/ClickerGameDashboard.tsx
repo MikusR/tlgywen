@@ -28,7 +28,7 @@ const ClickerGameDashboard: React.FC = () => {
     rock: 0,
   });
 
-  const [upgrades, setUpgrades] = useState({
+  const [upgrades, setUpgrades] = useState<Upgrades>({
     autoClickers: {
       level: 0,
       cost: 10,
@@ -140,6 +140,7 @@ const ClickerGameDashboard: React.FC = () => {
       setResources((prev) => ({ ...prev, coins: prev.coins - cost }));
     }
   };
+
   const upgradeGather = (type: keyof Upgrades) => {
     const cost = upgrades[type].cost;
     if (resources.coins >= cost) {
@@ -187,6 +188,7 @@ const ClickerGameDashboard: React.FC = () => {
       });
     }
   };
+
   // Function to reset the game
   const resetGame = () => {
     localStorage.removeItem("clickerGameState");
@@ -262,7 +264,12 @@ const ClickerGameDashboard: React.FC = () => {
             <div className="flex flex-col flex-grow p-4 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
-                <ModeToggle />
+                <div className="flex items-center space-x-2">
+                  <Button onClick={resetGame} variant="destructive">
+                    Reset Game
+                  </Button>
+                  <ModeToggle />
+                </div>
               </div>
 
               <Tabs
