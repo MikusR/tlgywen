@@ -198,6 +198,34 @@ const ClickerGameDashboard: React.FC = () => {
                                             }}
                                             backgroundImage={generators.knowledgeMiner.image}
                                         />
+                                         <GeneratorCard
+                                            name="Wood Miner"
+                                            level={generators.woodMiner.level}
+                                            cost={generators.woodMiner.cost}
+                                            onUpgrade={() => {
+                                                upgradeGenerator('woodMiner');
+                                            }}
+                                            backgroundImage={generators.woodMiner.image}
+                                        />
+                                            <GeneratorCard
+                                            name="Rock Miner"
+                                            level={generators.rockMiner.level}
+                                            cost={generators.rockMiner.cost}
+                                            onUpgrade={() => {
+                                                upgradeGenerator('rockMiner');
+                                            }}
+                                            backgroundImage={generators.rockMiner.image}
+                                        />
+                                            <GeneratorCard
+                                            name="Iron Miner"
+                                            level={generators.ironMiner.level}
+                                            cost={generators.ironMiner.cost}
+                                            onUpgrade={() => {
+                                                upgradeGenerator('ironMiner');
+                                            }}
+                                            backgroundImage={generators.ironMiner.image}
+                                        />
+                                        
                                     </ScrollArea>
                                 </TabsContent>
 
