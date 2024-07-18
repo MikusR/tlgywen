@@ -9,9 +9,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import PersistentSidebar from './PersistentSidebar';
 import GeneratorCard from './GeneratorCard';
-import coinImage from "@/assets/generators/coins.jpg";
-import energyImage from "@/assets/generators/energy.jpg";
-import dataImage from "@/assets/generators/data.jpg";
+import coinImage from "@/assets/coins.svg";
+import foodImage from "@/assets/food.svg";
+import knowledgeImage from "@/assets/knowledge.svg";
+import woodImage from "@/assets/wood.svg";
+import ironImage from "@/assets/iron.svg";
+import rockImage from "@/assets/rock.svg";
 import backgroundSvg from "@/assets/leaves-6975462.svg";
 import { Resources, Stats, Generators, ResourceType } from '../types';
 
@@ -19,33 +22,49 @@ import { Resources, Stats, Generators, ResourceType } from '../types';
 const ClickerGameDashboard: React.FC = () => {
     const [resources, setResources] = useState<Resources>({
         coins: 0,
-        energy: 0,
-        data: 0,
+        wood: 0,
+        food: 0,
+        knowledge: 0,
+        iron: 0,
+        rock: 0,
     });
 
     const [generators, setGenerators] = useState<Generators>({
         coinMiner: {
-            level: 1,
+            level: 0,
             cost: 10,
             image: coinImage
         },
-        energyPlant: {
-            level: 1,
+        knowledgeMiner: {
+            level: 0,
             cost: 20,
-            image: energyImage
+            image: knowledgeImage
         },
-        dataCenter: {
-            level: 1,
+        foodMiner: {
+            level: 0,
             cost: 30,
-            image: dataImage
+            image: foodImage
+        },
+        woodMiner: {
+            level: 0,
+            cost: 30,
+            image: woodImage
+        },
+        ironMiner: {
+            level: 0,
+            cost: 30,
+            image: ironImage
+        },
+        rockMiner: {
+            level: 0,
+            cost: 30,
+            image: rockImage
         },
     });
 
     const [stats, setStats] = useState<Stats>({
         level: 1,
         totalClicks: 0,
-        totalResources: 0,
-        generatorsOwned: 3,
     });
 
     const {toast} = useToast();
@@ -54,8 +73,11 @@ const ClickerGameDashboard: React.FC = () => {
         const timer = setInterval(() => {
             setResources(prev => ({
                 coins: prev.coins + generators.coinMiner.level,
-                energy: prev.energy + generators.energyPlant.level,
-                data: prev.data + generators.dataCenter.level,
+                knowledge: prev.knowledge + generators.knowledgeMiner.level,
+                food: prev.food + generators.foodMiner.level,
+                iron: prev.iron + generators.ironMiner.level,
+                wood: prev.wood + generators.woodMiner.level,
+                rock: prev.rock + generators.rockMiner.level,
             }));
         }, 1000);
 
@@ -76,20 +98,19 @@ const ClickerGameDashboard: React.FC = () => {
                 },
             }));
             setResources(prev => ({...prev, coins: prev.coins - cost}));
-            setStats(prev => ({...prev, generatorsOwned: prev.generatorsOwned + 1}));
         }
     };
 
     const handleClick = () => {
-        setResources(prev => ({...prev, clicks: prev.clicks + 1}));
+        setResources(prev => ({...prev, coins: prev.coins + 1}));
         setStats(prev => ({
             ...prev,
             totalClicks: prev.totalClicks + 1,
-            // totalResources: prev.totalResources + 1
+           
         }));
 
         if (Math.random() < .1) {
-            const dropPool: ResourceType[] = ['wood', 'food', 'knowledge', 'iron', 'rock'];
+            const dropPool: ResourceType[] = ['coins', 'wood', 'food', 'knowledge', 'iron', 'rock'];
             const droppedResource = dropPool[Math.floor(Math.random() * dropPool.length)];
             const dropAmount = Math.floor(Math.random() * 10) + 1;
 
@@ -160,22 +181,22 @@ const ClickerGameDashboard: React.FC = () => {
                                             backgroundImage={generators.coinMiner.image}
                                         />
                                         <GeneratorCard
-                                            name="Energy Plant"
-                                            level={generators.energyPlant.level}
-                                            cost={generators.energyPlant.cost}
+                                            name="Food Miner"
+                                            level={generators.foodMiner.level}
+                                            cost={generators.foodMiner.cost}
                                             onUpgrade={() => {
-                                                upgradeGenerator('energyPlant');
+                                                upgradeGenerator('foodMiner');
                                             }}
-                                            backgroundImage={generators.energyPlant.image}
+                                            backgroundImage={generators.foodMiner.image}
                                         />
                                         <GeneratorCard
-                                            name="Data Center"
-                                            level={generators.dataCenter.level}
-                                            cost={generators.dataCenter.cost}
+                                            name="Knowledge Miner"
+                                            level={generators.knowledgeMiner.level}
+                                            cost={generators.knowledgeMiner.cost}
                                             onUpgrade={() => {
-                                                upgradeGenerator('dataCenter');
+                                                upgradeGenerator('knowledgeMiner');
                                             }}
-                                            backgroundImage={generators.dataCenter.image}
+                                            backgroundImage={generators.knowledgeMiner.image}
                                         />
                                     </ScrollArea>
                                 </TabsContent>

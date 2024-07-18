@@ -1,7 +1,10 @@
 export interface Resources {
   coins: number;
-  energy: number;
-  data: number;
+  wood: number;
+  food: number;
+  knowledge: number;
+  iron: number;
+  rock: number;
 }
 
 export interface Stats {
@@ -17,8 +20,17 @@ export interface Generator {
 
 export interface Generators {
   coinMiner: Generator;
-  energyPlant: Generator;
-  dataCenter: Generator;
+  knowledgeMiner: Generator;
+  foodMiner: Generator;
+  woodMiner: Generator;
+  rockMiner: Generator;
+  ironMiner: Generator;
 }
 
-export type ResourceType = "coins" | "energy" | "data";
+export type ResourceType =
+  | "coins"
+  | "wood"
+  | "food"
+  | "knowledge"
+  | "iron"
+  | "rock";

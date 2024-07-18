@@ -4,9 +4,12 @@ import { User } from 'lucide-react';
 import ResourceCard from './ResourceCard';
 import { Resources, Stats } from '../types.ts';
 import owlImage from "@/assets/owl.svg";
-import coinImage from "@/assets/generators/coins.jpg";
-import energyImage from "@/assets/generators/energy.jpg";
-import dataImage from "@/assets/generators/data.jpg";
+import coinImage from "@/assets/coins.svg";
+import foodImage from "@/assets/food.svg";
+import knowledgeImage from "@/assets/knowledge.svg";
+import woodImage from "@/assets/wood.svg";
+import ironImage from "@/assets/iron.svg";
+import rockImage from "@/assets/rock.svg";
 
 interface PersistentSidebarProps {
     stats: Stats;
@@ -34,22 +37,38 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({stats, resources})
                 description="The primary currency used for upgrades and purchases."
             />
             <ResourceCard
-                name="Energy"
-                amount={resources.energy}
-                image={energyImage}
-                description="Powers your operations and unlocks advanced features."
+                name="Food"
+                amount={resources.food}
+                image={foodImage}
+                description="Food for eating."
             />
             <ResourceCard
-                name="Data"
-                amount={resources.data}
-                image={dataImage}
-                description="Collected information used for research and progression."
+                name="Knowledge"
+                amount={resources.knowledge}
+                image={knowledgeImage}
+                description="Knowledge of the world around you"
+            />
+             <ResourceCard
+                name="Wood"
+                amount={resources.wood}
+                image={woodImage}
+                description="Wood for building"
+            />
+             <ResourceCard
+                name="Rock"
+                amount={resources.rock}
+                image={rockImage}
+                description="Rock for building"
+            />
+             <ResourceCard
+                name="Iron"
+                amount={resources.iron}
+                image={ironImage}
+                description="Iron for building"
             />
         </div>
         <div className="mt-auto space-y-2 text-muted-foreground">
             <p>Total Clicks: {stats.totalClicks}</p>
-            <p>Total Resources: {stats.totalResources}</p>
-            <p>Generators Owned: {stats.generatorsOwned}</p>
         </div>
     </div>
 );
