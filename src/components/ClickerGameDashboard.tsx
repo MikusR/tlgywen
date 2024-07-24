@@ -96,11 +96,8 @@ const ClickerGameDashboard: React.FC = () => {
   const unsavedChangesRef = useRef(false);
 
   const saveGameState = useCallback(() => {
-    if (unsavedChangesRef.current) {
-      localStorage.setItem("clickerGameState", JSON.stringify(gameState));
-      console.log("Game state saved");
-      unsavedChangesRef.current = false;
-    }
+    localStorage.setItem("clickerGameState", JSON.stringify(gameState));
+    console.log("Game state saved");
   }, [gameState]);
 
   useEffect(() => {
@@ -273,11 +270,20 @@ const ClickerGameDashboard: React.FC = () => {
     });
   }, [toast]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     saveGameState();
-  //   };
-  // }, [saveGameState]);
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      saveGameState();
+      // The following is for older browsers, modern browsers don't require setting returnValue
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [saveGameState]);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
