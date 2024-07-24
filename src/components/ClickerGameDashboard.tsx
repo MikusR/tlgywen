@@ -7,6 +7,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import PersistentSidebar from "./PersistentSidebar";
 import GeneratorCard from "./GeneratorCard";
 import coinImage from "@/assets/coins.svg";
@@ -379,7 +388,25 @@ const ClickerGameDashboard: React.FC = () => {
                   <p>Shop content (to be implemented)</p>
                 </TabsContent>
                 <TabsContent value="log">
-                  <p>Shop content (to be implemented)</p>
+                  <Table>
+                    <TableCaption>A list of your recent invoices.</TableCaption>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[100px]">Invoice</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Method</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">INV001</TableCell>
+                        <TableCell>Paid</TableCell>
+                        <TableCell>Credit Card</TableCell>
+                        <TableCell className="text-right">$250.00</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </TabsContent>
               </Tabs>
             </div>
