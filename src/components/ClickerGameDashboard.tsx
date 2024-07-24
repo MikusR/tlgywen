@@ -389,10 +389,10 @@ const ClickerGameDashboard: React.FC = () => {
                 </TabsContent>
                 <TabsContent value="log">
                   <Table>
-                    <TableCaption>A list of your recent invoices.</TableCaption>
+                    <TableCaption>Event log</TableCaption>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[100px]">Invoice</TableHead>
+                        <TableHead className="w-[100px]">time</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Method</TableHead>
                         <TableHead className="text-right">Amount</TableHead>
