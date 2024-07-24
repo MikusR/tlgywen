@@ -199,7 +199,7 @@ const ClickerGameDashboard: React.FC = () => {
 
       return newState;
     });
-  }, [updateGameState, toast]);
+  }, [updateGameState]);
 
   useEffect(() => {
     const timer = setInterval(() => {
