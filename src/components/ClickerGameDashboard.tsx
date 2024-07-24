@@ -35,55 +35,55 @@ const CURRENT_SAVE_VERSION = 1;
 const initialState = {
   version: CURRENT_SAVE_VERSION,
   resources: {
-    coins: 0,
-    wood: 0,
-    food: 0,
-    knowledge: 0,
-    iron: 0,
-    rock: 0,
+    coins: 1,
+    wood: 1,
+    food: 1,
+    knowledge: 1,
+    iron: 1,
+    rock: 1,
   },
   upgrades: {
     autoClickers: {
-      level: 0,
+      level: 1,
       cost: 10,
       image: "coins" as ImageKey,
     },
   },
   generators: {
     coinMiner: {
-      level: 0,
+      level: 1,
       cost: 10,
       image: "coins" as ImageKey,
     },
     knowledgeMiner: {
-      level: 0,
+      level: 1,
       cost: 20,
       image: "knowledge" as ImageKey,
     },
     foodMiner: {
-      level: 0,
+      level: 1,
       cost: 30,
       image: "food" as ImageKey,
     },
     woodMiner: {
-      level: 0,
+      level: 1,
       cost: 30,
       image: "wood" as ImageKey,
     },
     ironMiner: {
-      level: 0,
+      level: 1,
       cost: 30,
       image: "iron" as ImageKey,
     },
     rockMiner: {
-      level: 0,
+      level: 1,
       cost: 30,
       image: "rock" as ImageKey,
     },
   },
   stats: {
     level: 1,
-    totalClicks: 0,
+    totalClicks: 1,
   },
 };
 
