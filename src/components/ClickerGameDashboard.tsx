@@ -35,7 +35,7 @@ const assetCredits = [
   {
     name: "Background Image",
     author: "John Doe",
-    link: "https://example.com/background-image",
+    link: "https://pixabay.com/vectors/leaves-sample-decorative-decoration-6975462/",
   },
   {
     name: "Icon Set",
