@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { UserRoundSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,27 +16,26 @@ import woodImage from "@/assets/wood.svg";
 import ironImage from "@/assets/iron.svg";
 import rockImage from "@/assets/rock.svg";
 import backgroundSvg from "@/assets/leaves-6975462.svg";
-import { Resources, Stats, Generators, ResourceType, Upgrades } from "../types";
+import { Generators, ResourceType, Upgrades } from "../types";
 
-const ClickerGameDashboard: React.FC = () => {
-  const [resources, setResources] = useState<Resources>({
+// Initial state values
+const initialState = {
+  resources: {
     coins: 0,
     wood: 0,
     food: 0,
     knowledge: 0,
     iron: 0,
     rock: 0,
-  });
-
-  const [upgrades, setUpgrades] = useState<Upgrades>({
+  },
+  upgrades: {
     autoClickers: {
       level: 0,
       cost: 10,
       image: coinImage,
     },
-  });
-
-  const [generators, setGenerators] = useState<Generators>({
+  },
+  generators: {
     coinMiner: {
       level: 0,
       cost: 10,
@@ -67,101 +66,73 @@ const ClickerGameDashboard: React.FC = () => {
       cost: 30,
       image: rockImage,
     },
-  });
-
-  const [stats, setStats] = useState<Stats>({
+  },
+  stats: {
     level: 1,
     totalClicks: 0,
+  },
+};
+const ClickerGameDashboard: React.FC = () => {
+  const [gameState, setGameState] = useState(() => {
+    const savedState = localStorage.getItem("clickerGameState");
+    if (savedState) {
+      try {
+        return JSON.parse(savedState);
+      } catch (error) {
+        console.error("Error parsing saved game state:", error);
+      }
+    }
+    return initialState;
   });
 
   const { toast } = useToast();
 
-  // Load game state from localStorage
+  const saveGameState = useCallback(() => {
+    localStorage.setItem("clickerGameState", JSON.stringify(gameState));
+    console.log("Game state saved");
+  }, [gameState]);
+
   useEffect(() => {
-    const savedState = localStorage.getItem("clickerGameState");
-    if (savedState) {
-      const { resources, upgrades, generators, stats } = JSON.parse(savedState);
-      setResources(resources);
-      setUpgrades(upgrades);
-      setGenerators(generators);
-      setStats(stats);
-    }
+    const timer = setInterval(saveGameState, 5000); // Save every 5 seconds
+    return () => clearInterval(timer);
+  }, [saveGameState]);
+
+  const updateGameState = useCallback((updates: Partial<typeof gameState>) => {
+    setGameState((prevState) => {
+      const newState = {
+        ...prevState,
+        ...updates,
+        resources: {
+          ...prevState.resources,
+          ...(updates.resources || {}),
+        },
+        upgrades: {
+          ...prevState.upgrades,
+          ...(updates.upgrades || {}),
+        },
+        generators: {
+          ...prevState.generators,
+          ...(updates.generators || {}),
+        },
+        stats: {
+          ...prevState.stats,
+          ...(updates.stats || {}),
+        },
+      };
+      localStorage.setItem("clickerGameState", JSON.stringify(newState));
+      return newState;
+    });
   }, []);
 
-  // Save game state to localStorage
-  useEffect(() => {
-    const gameState = {
-      resources,
-      upgrades,
-      generators,
-      stats,
-    };
-    localStorage.setItem("clickerGameState", JSON.stringify(gameState));
-  }, [resources, upgrades, generators, stats]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setResources((prev) => ({
-        coins: prev.coins + generators.coinMiner.level,
-        knowledge: prev.knowledge + generators.knowledgeMiner.level,
-        food: prev.food + generators.foodMiner.level,
-        iron: prev.iron + generators.ironMiner.level,
-        wood: prev.wood + generators.woodMiner.level,
-        rock: prev.rock + generators.rockMiner.level,
-      }));
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [generators]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      for (let i = 0; i < upgrades.autoClickers.level; i++) handleClick();
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [upgrades]);
-
-  const upgradeGenerator = (type: keyof Generators) => {
-    const cost = generators[type].cost;
-    if (resources.coins >= cost) {
-      setGenerators((prev) => ({
-        ...prev,
-        [type]: {
-          ...prev[type],
-          level: prev[type].level + 1,
-          cost: Math.floor(prev[type].cost * 1.15),
-        },
-      }));
-      setResources((prev) => ({ ...prev, coins: prev.coins - cost }));
-    }
-  };
-
-  const upgradeGather = (type: keyof Upgrades) => {
-    const cost = upgrades[type].cost;
-    if (resources.coins >= cost) {
-      setUpgrades((prev) => ({
-        ...prev,
-        [type]: {
-          ...prev[type],
-          level: prev[type].level + 1,
-          cost: Math.floor(prev[type].cost * 1.15),
-        },
-      }));
-      setResources((prev) => ({ ...prev, coins: prev.coins - cost }));
-    }
-  };
-
-  const handleClick = () => {
-    setResources((prev) => ({ ...prev, coins: prev.coins + 1 }));
-    setStats((prev) => ({
-      ...prev,
-      totalClicks: prev.totalClicks + 1,
-    }));
+  const handleClick = useCallback(() => {
+    updateGameState({
+      resources: {
+        coins: gameState.resources.coins + 1,
+      },
+      stats: {
+        totalClicks: gameState.stats.totalClicks + 1,
+      },
+    });
 
     if (Math.random() < 0.1) {
       const dropPool: ResourceType[] = [
@@ -176,10 +147,11 @@ const ClickerGameDashboard: React.FC = () => {
         dropPool[Math.floor(Math.random() * dropPool.length)];
       const dropAmount = Math.floor(Math.random() * 10) + 1;
 
-      setResources((prev) => ({
-        ...prev,
-        [droppedResource]: prev[droppedResource] + dropAmount,
-      }));
+      updateGameState({
+        resources: {
+          [droppedResource]: gameState.resources[droppedResource] + dropAmount,
+        },
+      });
 
       toast({
         title: "Resource Drop!",
@@ -187,68 +159,92 @@ const ClickerGameDashboard: React.FC = () => {
         duration: 3000,
       });
     }
-  };
+  }, [
+    gameState.resources,
+    gameState.stats.totalClicks,
+    updateGameState,
+    toast,
+  ]);
 
-  // Function to reset the game
-  const resetGame = () => {
+  useEffect(() => {
+    const timer = setInterval(() => {
+      updateGameState({
+        resources: {
+          coins:
+            gameState.resources.coins + gameState.generators.coinMiner.level,
+          knowledge:
+            gameState.resources.knowledge +
+            gameState.generators.knowledgeMiner.level,
+          food: gameState.resources.food + gameState.generators.foodMiner.level,
+          iron: gameState.resources.iron + gameState.generators.ironMiner.level,
+          wood: gameState.resources.wood + gameState.generators.woodMiner.level,
+          rock: gameState.resources.rock + gameState.generators.rockMiner.level,
+        },
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameState.generators, gameState.resources, updateGameState]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      for (let i = 0; i < gameState.upgrades.autoClickers.level; i++) {
+        handleClick();
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameState.upgrades.autoClickers.level, handleClick]);
+
+  const upgradeGenerator = useCallback(
+    (type: keyof Generators) => {
+      const cost = gameState.generators[type].cost;
+      if (gameState.resources.coins >= cost) {
+        updateGameState({
+          generators: {
+            [type]: {
+              level: gameState.generators[type].level + 1,
+              cost: Math.floor(gameState.generators[type].cost * 1.15),
+            },
+          },
+          resources: {
+            coins: gameState.resources.coins - cost,
+          },
+        });
+      }
+    },
+    [gameState.generators, gameState.resources.coins, updateGameState]
+  );
+
+  const upgradeGather = useCallback(
+    (type: keyof Upgrades) => {
+      const cost = gameState.upgrades[type].cost;
+      if (gameState.resources.coins >= cost) {
+        updateGameState({
+          upgrades: {
+            [type]: {
+              level: gameState.upgrades[type].level + 1,
+              cost: Math.floor(gameState.upgrades[type].cost * 1.15),
+            },
+          },
+          resources: {
+            coins: gameState.resources.coins - cost,
+          },
+        });
+      }
+    },
+    [gameState.upgrades, gameState.resources.coins, updateGameState]
+  );
+
+  const resetGame = useCallback(() => {
     localStorage.removeItem("clickerGameState");
-    setResources({
-      coins: 0,
-      wood: 0,
-      food: 0,
-      knowledge: 0,
-      iron: 0,
-      rock: 0,
-    });
-    setUpgrades({
-      autoClickers: {
-        level: 0,
-        cost: 10,
-        image: coinImage,
-      },
-    });
-    setGenerators({
-      coinMiner: {
-        level: 0,
-        cost: 10,
-        image: coinImage,
-      },
-      knowledgeMiner: {
-        level: 0,
-        cost: 20,
-        image: knowledgeImage,
-      },
-      foodMiner: {
-        level: 0,
-        cost: 30,
-        image: foodImage,
-      },
-      woodMiner: {
-        level: 0,
-        cost: 30,
-        image: woodImage,
-      },
-      ironMiner: {
-        level: 0,
-        cost: 30,
-        image: ironImage,
-      },
-      rockMiner: {
-        level: 0,
-        cost: 30,
-        image: rockImage,
-      },
-    });
-    setStats({
-      level: 1,
-      totalClicks: 0,
-    });
+    setGameState(initialState);
     toast({
       title: "Game Reset",
       description: "Your game has been reset to the initial state.",
       duration: 3000,
     });
-  };
+  }, [toast]);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -260,7 +256,10 @@ const ClickerGameDashboard: React.FC = () => {
         />
         <div className="absolute inset-0 bg-background/90">
           <div className="flex h-full">
-            <PersistentSidebar stats={stats} resources={resources} />
+            <PersistentSidebar
+              stats={gameState.stats}
+              resources={gameState.resources}
+            />
             <div className="flex flex-col flex-grow p-4 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
@@ -272,10 +271,7 @@ const ClickerGameDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <Tabs
-                defaultValue="generators"
-                className="flex flex-col flex-grow"
-              >
+              <Tabs defaultValue="main" className="flex flex-col flex-grow">
                 <TabsList className="mb-4 bg-background/90">
                   <TabsTrigger value="main">Main</TabsTrigger>
                   <TabsTrigger value="generators">Generators</TabsTrigger>
@@ -303,12 +299,10 @@ const ClickerGameDashboard: React.FC = () => {
                     <TabsContent value="upgrades">
                       <GeneratorCard
                         name="Auto Gather"
-                        level={upgrades.autoClickers.level}
-                        cost={upgrades.autoClickers.cost}
-                        onUpgrade={() => {
-                          upgradeGather("autoClickers");
-                        }}
-                        backgroundImage={upgrades.autoClickers.image}
+                        level={gameState.upgrades.autoClickers.level}
+                        cost={gameState.upgrades.autoClickers.cost}
+                        onUpgrade={() => upgradeGather("autoClickers")}
+                        backgroundImage={gameState.upgrades.autoClickers.image}
                       />
                     </TabsContent>
                   </Tabs>
@@ -319,60 +313,20 @@ const ClickerGameDashboard: React.FC = () => {
                   className="flex-grow p-4 overflow-auto rounded-lg bg-card/90"
                 >
                   <ScrollArea className="h-full">
-                    <GeneratorCard
-                      name="Coin Miner"
-                      level={generators.coinMiner.level}
-                      cost={generators.coinMiner.cost}
-                      onUpgrade={() => {
-                        upgradeGenerator("coinMiner");
-                      }}
-                      backgroundImage={generators.coinMiner.image}
-                    />
-                    <GeneratorCard
-                      name="Food Miner"
-                      level={generators.foodMiner.level}
-                      cost={generators.foodMiner.cost}
-                      onUpgrade={() => {
-                        upgradeGenerator("foodMiner");
-                      }}
-                      backgroundImage={generators.foodMiner.image}
-                    />
-                    <GeneratorCard
-                      name="Knowledge Miner"
-                      level={generators.knowledgeMiner.level}
-                      cost={generators.knowledgeMiner.cost}
-                      onUpgrade={() => {
-                        upgradeGenerator("knowledgeMiner");
-                      }}
-                      backgroundImage={generators.knowledgeMiner.image}
-                    />
-                    <GeneratorCard
-                      name="Wood Miner"
-                      level={generators.woodMiner.level}
-                      cost={generators.woodMiner.cost}
-                      onUpgrade={() => {
-                        upgradeGenerator("woodMiner");
-                      }}
-                      backgroundImage={generators.woodMiner.image}
-                    />
-                    <GeneratorCard
-                      name="Rock Miner"
-                      level={generators.rockMiner.level}
-                      cost={generators.rockMiner.cost}
-                      onUpgrade={() => {
-                        upgradeGenerator("rockMiner");
-                      }}
-                      backgroundImage={generators.rockMiner.image}
-                    />
-                    <GeneratorCard
-                      name="Iron Miner"
-                      level={generators.ironMiner.level}
-                      cost={generators.ironMiner.cost}
-                      onUpgrade={() => {
-                        upgradeGenerator("ironMiner");
-                      }}
-                      backgroundImage={generators.ironMiner.image}
-                    />
+                    {Object.entries(gameState.generators).map(
+                      ([key, generator]) => (
+                        <GeneratorCard
+                          key={key}
+                          name={key}
+                          level={generator.level}
+                          cost={generator.cost}
+                          onUpgrade={() =>
+                            upgradeGenerator(key as keyof Generators)
+                          }
+                          backgroundImage={generator.image}
+                        />
+                      )
+                    )}
                   </ScrollArea>
                 </TabsContent>
 
