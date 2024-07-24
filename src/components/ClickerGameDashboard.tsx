@@ -101,7 +101,7 @@ const ClickerGameDashboard: React.FC = () => {
 
   const [log, setLog] = useState([
     {
-      id: performance.now(),
+      id: performance.now() + Math.random(),
       time: new Date().toLocaleTimeString(),
       event: "Game started",
     },
@@ -109,7 +109,7 @@ const ClickerGameDashboard: React.FC = () => {
 
   const addLogEntry = (event: string) => {
     const newEntry = {
-      id: performance.now(),
+      id: performance.now() + Math.random(),
       time: new Date().toLocaleTimeString(),
       event: event,
     };
