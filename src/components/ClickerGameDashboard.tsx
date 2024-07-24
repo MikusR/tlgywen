@@ -40,7 +40,7 @@ const assetCredits = [
   {
     name: "Owl",
     author: "Aslan",
-    link: "https://example.com/icon-set",
+    link: "https://dribbble.com/reggid?ref=svgrepo.com",
   },
 ];
 
