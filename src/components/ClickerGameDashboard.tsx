@@ -16,7 +16,13 @@ import woodImage from "@/assets/wood.svg";
 import ironImage from "@/assets/iron.svg";
 import rockImage from "@/assets/rock.svg";
 import backgroundSvg from "@/assets/leaves-6975462.svg";
-import { Generators, Generator, ResourceType, Upgrades } from "../types";
+import {
+  Generators,
+  Generator,
+  ResourceType,
+  Upgrades,
+  GameState,
+} from "../types";
 
 // Initial state values
 const initialState = {
@@ -98,7 +104,7 @@ const ClickerGameDashboard: React.FC = () => {
   }, [saveGameState]);
 
   const updateGameState = useCallback((updates: Partial<typeof gameState>) => {
-    setGameState((prevState) => {
+    setGameState((prevState: GameState) => {
       const newState = {
         ...prevState,
         ...updates,
@@ -313,20 +319,23 @@ const ClickerGameDashboard: React.FC = () => {
                   className="flex-grow p-4 overflow-auto rounded-lg bg-card/90"
                 >
                   <ScrollArea className="h-full">
-                    {(Object.entries(gameState.generators) as [keyof Generators, Generator][]).map(
-                      ([key, generator]) => (
-                        <GeneratorCard
-                          key={key}
-                          name={key}
-                          level={generator.level}
-                          cost={generator.cost}
-                          onUpgrade={() =>
-                            upgradeGenerator(key as keyof Generators)
-                          }
-                          backgroundImage={generator.image}
-                        />
-                      )
-                    )}
+                    {(
+                      Object.entries(gameState.generators) as [
+                        keyof Generators,
+                        Generator
+                      ][]
+                    ).map(([key, generator]) => (
+                      <GeneratorCard
+                        key={key}
+                        name={key}
+                        level={generator.level}
+                        cost={generator.cost}
+                        onUpgrade={() =>
+                          upgradeGenerator(key as keyof Generators)
+                        }
+                        backgroundImage={generator.image}
+                      />
+                    ))}
                   </ScrollArea>
                 </TabsContent>
 
