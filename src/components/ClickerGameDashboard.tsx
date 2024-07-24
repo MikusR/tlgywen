@@ -34,12 +34,12 @@ const CURRENT_SAVE_VERSION = 1;
 const assetCredits = [
   {
     name: "Background Image",
-    author: "John Doe",
+    author: "Alexey Hulsov",
     link: "https://pixabay.com/vectors/leaves-sample-decorative-decoration-6975462/",
   },
   {
-    name: "Icon Set",
-    author: "Jane Smith",
+    name: "Owl",
+    author: "Aslan",
     link: "https://example.com/icon-set",
   },
 ];
