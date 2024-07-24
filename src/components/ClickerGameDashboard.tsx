@@ -88,6 +88,7 @@ const initialState = {
     totalClicks: 0,
   },
 };
+
 const ClickerGameDashboard: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(() => {
     const savedState = localStorage.getItem("clickerGameState");
@@ -102,6 +103,19 @@ const ClickerGameDashboard: React.FC = () => {
   });
 
   const { toast } = useToast();
+
+  const [log, setLog] = useState([
+    { id: 1, time: new Date().toLocaleTimeString(), event: "Game started" },
+  ]);
+
+  const addLogEntry = (event: string) => {
+    const newEntry = {
+      time: new Date().toLocaleTimeString(),
+      id: log.length + 1,
+      event: event,
+    };
+    setLog((prevLog) => [...prevLog, newEntry]);
+  };
 
   const saveGameState = useCallback(() => {
     localStorage.setItem("clickerGameState", JSON.stringify(gameState));
@@ -175,12 +189,12 @@ const ClickerGameDashboard: React.FC = () => {
           [droppedResource]:
             (newState.resources as Resources)[droppedResource] + dropAmount,
         };
-
-        toast({
-          title: "Resource Drop!",
-          description: `You found ${dropAmount.toString()} ${droppedResource}!`,
-          duration: 3000,
-        });
+        addLogEntry(`You found ${dropAmount.toString()} ${droppedResource}!`);
+        // toast({
+        //   title: "Resource Drop!",
+        //   description: `You found ${dropAmount.toString()} ${droppedResource}!`,
+        //   duration: 3000,
+        // });
       }
 
       return newState;
@@ -392,19 +406,21 @@ const ClickerGameDashboard: React.FC = () => {
                     <TableCaption>Event log</TableCaption>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[100px]">time</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Method</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead className="w-[100px]">Time</TableHead>
+                        <TableHead className="text-center">Event</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">INV001</TableCell>
-                        <TableCell>Paid</TableCell>
-                        <TableCell>Credit Card</TableCell>
-                        <TableCell className="text-right">$250.00</TableCell>
-                      </TableRow>
+                      {log.map((row) => (
+                        <TableRow key={row.time}>
+                          <TableCell className="font-medium">
+                            {row.time}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {row.event}
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TabsContent>
