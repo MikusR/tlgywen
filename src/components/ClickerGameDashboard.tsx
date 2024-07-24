@@ -105,12 +105,12 @@ const ClickerGameDashboard: React.FC = () => {
   const { toast } = useToast();
 
   const [log, setLog] = useState([
-    { id: 1, time: new Date().toLocaleTimeString(), event: "Game started" },
+    { id: performance.now(), time: new Date().toLocaleTimeString(), event: "Game started" },
   ]);
 
   const addLogEntry = (event: string) => {
     const newEntry = {
-      id: log.length + 1,
+      id: performance.now(),
       time: new Date().toLocaleTimeString(),
       event: event,
     };
@@ -412,7 +412,7 @@ const ClickerGameDashboard: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {log.map((row) => (
-                        <TableRow >
+                        <TableRow>
                           <TableCell className="font-medium">
                             {row.time}
                           </TableCell>
