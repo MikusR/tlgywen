@@ -311,6 +311,7 @@ const ClickerGameDashboard: React.FC = () => {
                   <TabsTrigger value="research">Research</TabsTrigger>
                   <TabsTrigger value="quests">Quests</TabsTrigger>
                   <TabsTrigger value="shop">Shop</TabsTrigger>
+                  <TabsTrigger value="log">Log</TabsTrigger>
                 </TabsList>
 
                 <TabsContent
@@ -375,6 +376,9 @@ const ClickerGameDashboard: React.FC = () => {
                 </TabsContent>
 
                 <TabsContent value="shop">
+                  <p>Shop content (to be implemented)</p>
+                </TabsContent>
+                <TabsContent value="log">
                   <p>Shop content (to be implemented)</p>
                 </TabsContent>
               </Tabs>
