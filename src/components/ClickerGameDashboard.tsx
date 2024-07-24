@@ -42,6 +42,11 @@ const assetCredits = [
     author: "Aslan",
     link: "https://dribbble.com/reggid?ref=svgrepo.com",
   },
+  {
+    name:"Icons",
+    author: "Lucide",
+    link: "https://game-icons.net/",
+  }
 ];
 
 // Initial state values
