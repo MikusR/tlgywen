@@ -110,11 +110,11 @@ const ClickerGameDashboard: React.FC = () => {
 
   const addLogEntry = (event: string) => {
     const newEntry = {
-      time: new Date().toLocaleTimeString(),
       id: log.length + 1,
+      time: new Date().toLocaleTimeString(),
       event: event,
     };
-    setLog((prevLog) => [...prevLog, newEntry]);
+    setLog((prevLog) => [newEntry, ...prevLog].slice(0, 10));
   };
 
   const saveGameState = useCallback(() => {
@@ -412,7 +412,7 @@ const ClickerGameDashboard: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {log.map((row) => (
-                        <TableRow key={row.time}>
+                        <TableRow key={row.id}>
                           <TableCell className="font-medium">
                             {row.time}
                           </TableCell>
