@@ -128,7 +128,7 @@ const ClickerGameDashboard: React.FC = () => {
             ...(updates.stats || {}),
           },
         };
-        
+
         return newState;
       });
     },
@@ -268,11 +268,8 @@ const ClickerGameDashboard: React.FC = () => {
   }, [toast]);
 
   useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    const handleBeforeUnload = () => {
       saveGameState();
-      // The following is for older browsers, modern browsers don't require setting returnValue
-      event.preventDefault();
-      event.returnValue = "";
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
