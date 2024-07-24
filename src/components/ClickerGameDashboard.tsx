@@ -105,7 +105,11 @@ const ClickerGameDashboard: React.FC = () => {
   const { toast } = useToast();
 
   const [log, setLog] = useState([
-    { id: performance.now(), time: new Date().toLocaleTimeString(), event: "Game started" },
+    {
+      id: performance.now(),
+      time: new Date().toLocaleTimeString(),
+      event: "Game started",
+    },
   ]);
 
   const addLogEntry = (event: string) => {
@@ -251,7 +255,7 @@ const ClickerGameDashboard: React.FC = () => {
         }));
       }
     },
-    [updateGameState]
+    [gameState.generators, gameState.resources.coins, updateGameState]
   );
 
   const upgradeGather = useCallback(
