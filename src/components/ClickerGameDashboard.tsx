@@ -273,11 +273,11 @@ const ClickerGameDashboard: React.FC = () => {
     });
   }, [toast]);
 
-  useEffect(() => {
-    return () => {
-      saveGameState();
-    };
-  }, [saveGameState]);
+  // useEffect(() => {
+  //   return () => {
+  //     saveGameState();
+  //   };
+  // }, [saveGameState]);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
