@@ -16,7 +16,7 @@ import woodImage from "@/assets/wood.svg";
 import ironImage from "@/assets/iron.svg";
 import rockImage from "@/assets/rock.svg";
 import backgroundSvg from "@/assets/leaves-6975462.svg";
-import { Generators, ResourceType, Upgrades } from "../types";
+import { Generators, Generator, ResourceType, Upgrades } from "../types";
 
 // Initial state values
 const initialState = {
@@ -313,7 +313,7 @@ const ClickerGameDashboard: React.FC = () => {
                   className="flex-grow p-4 overflow-auto rounded-lg bg-card/90"
                 >
                   <ScrollArea className="h-full">
-                    {Object.entries(gameState.generators).map(
+                    {(Object.entries(gameState.generators) as [keyof Generators, Generator][]).map(
                       ([key, generator]) => (
                         <GeneratorCard
                           key={key}
