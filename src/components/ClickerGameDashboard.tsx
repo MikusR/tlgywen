@@ -31,6 +31,19 @@ import {
 
 const CURRENT_SAVE_VERSION = 1;
 
+const assetCredits = [
+  {
+    name: "Background Image",
+    author: "John Doe",
+    link: "https://example.com/background-image",
+  },
+  {
+    name: "Icon Set",
+    author: "Jane Smith",
+    link: "https://example.com/icon-set",
+  },
+];
+
 // Initial state values
 const initialState = {
   version: CURRENT_SAVE_VERSION,
@@ -463,19 +476,47 @@ const ClickerGameDashboard: React.FC = () => {
                   </Table>
                 </TabsContent>
                 <TabsContent value="about">
-                  <p>
-                    Vectors and icons by{" "}
-                    <a
-                      href="https://dribbble.com/reggid?ref=svgrepo.com"
-                      target="_blank"
-                    >
-                      Aslan
-                    </a>{" "}
-                    in CC Attribution License via{" "}
-                    <a href="https://www.svgrepo.com/" target="_blank">
-                      SVG Repo
-                    </a>
-                  </p>
+                  <ScrollArea className="h-full">
+                    <div className="space-y-6">
+                      <section>
+                        <h2 className="mb-2 text-2xl font-bold">
+                          Game Version
+                        </h2>
+                        <p>Current Version: {__COMMIT_HASH__}</p>
+                      </section>
+
+                      <section>
+                        <h2 className="mb-2 text-2xl font-bold">
+                          Asset Credits
+                        </h2>
+                        <ul className="space-y-2">
+                          {assetCredits.map((credit, index) => (
+                            <li key={index}>
+                              <strong>{credit.name}</strong> by{" "}
+                              <a
+                                href={credit.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:underline"
+                              >
+                                {credit.author}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+
+                      <section>
+                        <h2 className="mb-2 text-2xl font-bold">
+                          About the Game
+                        </h2>
+                        <p>
+                          This clicker game was developed as a fun project to
+                          explore React and game development concepts.
+                        </p>
+                      </section>
+                    </div>
+                  </ScrollArea>
                 </TabsContent>
               </Tabs>
             </div>
