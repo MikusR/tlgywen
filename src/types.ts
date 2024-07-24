@@ -1,3 +1,16 @@
+import { ImageKey } from "src/assets/imageAssets";
+
+export interface Generator {
+  level: number;
+  cost: number;
+  image: ImageKey;
+}
+
+export interface Upgrade {
+  level: number;
+  cost: number;
+  image: ImageKey;
+}
 export interface Resources {
   coins: number;
   wood: number;
@@ -12,12 +25,6 @@ export interface Stats {
   totalClicks: number;
 }
 
-export interface Generator {
-  level: number;
-  cost: number;
-  image: string;
-}
-
 export interface Generators {
   coinMiner: Generator;
   knowledgeMiner: Generator;
@@ -25,12 +32,6 @@ export interface Generators {
   woodMiner: Generator;
   rockMiner: Generator;
   ironMiner: Generator;
-}
-
-export interface Upgrade {
-  level: number;
-  cost: number;
-  image: string;
 }
 
 export interface Upgrades {
@@ -51,7 +52,7 @@ export interface GeneratorCardProps {
   level: number;
   cost: number;
   onUpgrade: () => void;
-  backgroundImage: string;
+  image: ImageKey;
 }
 
 export interface PersistentSidebarProps {
@@ -62,6 +63,6 @@ export interface PersistentSidebarProps {
 export interface ResourceCardProps {
   name: ResourceType;
   amount: number;
-  image: string;
+  image: ImageKey;
   description: string;
 }

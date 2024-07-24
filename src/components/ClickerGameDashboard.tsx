@@ -16,15 +16,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { images, ImageKey } from "src/assets/imageAssets";
 import PersistentSidebar from "./PersistentSidebar";
 import GeneratorCard from "./GeneratorCard";
-import coinImage from "@/assets/coins.svg";
-import foodImage from "@/assets/food.svg";
-import knowledgeImage from "@/assets/knowledge.svg";
-import woodImage from "@/assets/wood.svg";
-import ironImage from "@/assets/iron.svg";
-import rockImage from "@/assets/rock.svg";
-import backgroundSvg from "@/assets/leaves-6975462.svg";
+
 import {
   Generators,
   Generator,
@@ -48,39 +43,39 @@ const initialState = {
     autoClickers: {
       level: 0,
       cost: 10,
-      image: coinImage,
+      image: "coins" as ImageKey,
     },
   },
   generators: {
     coinMiner: {
       level: 0,
       cost: 10,
-      image: coinImage,
+      image: "coins" as ImageKey,
     },
     knowledgeMiner: {
       level: 0,
       cost: 20,
-      image: knowledgeImage,
+      image: "knowledge" as ImageKey,
     },
     foodMiner: {
       level: 0,
       cost: 30,
-      image: foodImage,
+      image: "food" as ImageKey,
     },
     woodMiner: {
       level: 0,
       cost: 30,
-      image: woodImage,
+      image: "wood" as ImageKey,
     },
     ironMiner: {
       level: 0,
       cost: 30,
-      image: ironImage,
+      image: "iron" as ImageKey,
     },
     rockMiner: {
       level: 0,
       cost: 30,
-      image: rockImage,
+      image: "rock" as ImageKey,
     },
   },
   stats: {
@@ -310,7 +305,7 @@ const ClickerGameDashboard: React.FC = () => {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <div className="relative min-h-screen bg-transparent">
         <img
-          src={backgroundSvg}
+          src={images["background"]}
           alt="Background"
           className="fixed inset-0 object-cover w-full h-full -z-10"
         />
@@ -363,7 +358,9 @@ const ClickerGameDashboard: React.FC = () => {
                         level={gameState.upgrades.autoClickers.level}
                         cost={gameState.upgrades.autoClickers.cost}
                         onUpgrade={() => upgradeGather("autoClickers")}
-                        backgroundImage={gameState.upgrades.autoClickers.image}
+                        backgroundImage={
+                          images[gameState.upgrades.autoClickers.image]
+                        }
                       />
                     </TabsContent>
                   </Tabs>
@@ -388,7 +385,7 @@ const ClickerGameDashboard: React.FC = () => {
                         onUpgrade={() =>
                           upgradeGenerator(key as keyof Generators)
                         }
-                        backgroundImage={generator.image}
+                        backgroundImage={images[generator.image]}
                       />
                     ))}
                   </ScrollArea>
