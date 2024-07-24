@@ -20,6 +20,7 @@ import {
   Generators,
   Generator,
   ResourceType,
+  Resources,
   Upgrades,
   GameState,
 } from "../types";
@@ -79,7 +80,7 @@ const initialState = {
   },
 };
 const ClickerGameDashboard: React.FC = () => {
-  const [gameState, setGameState] = useState(() => {
+  const [gameState, setGameState] = useState<GameState>(() => {
     const savedState = localStorage.getItem("clickerGameState");
     if (savedState) {
       try {
@@ -103,94 +104,80 @@ const ClickerGameDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, [saveGameState]);
 
-  const updateGameState = useCallback((updates: Partial<typeof gameState>) => {
-    setGameState((prevState: GameState) => {
-      const newState = {
-        ...prevState,
-        ...updates,
+  const updateGameState = useCallback(
+    (updater: (prevState: GameState) => Partial<GameState>) => {
+      setGameState((prevState: GameState) => {
+        const updates = updater(prevState);
+        const newState: GameState = {
+          ...prevState,
+          ...updates,
+          resources: {
+            ...prevState.resources,
+            ...(updates.resources || {}),
+          },
+          upgrades: {
+            ...prevState.upgrades,
+            ...(updates.upgrades || {}),
+          },
+          generators: {
+            ...prevState.generators,
+            ...(updates.generators || {}),
+          },
+          stats: {
+            ...prevState.stats,
+            ...(updates.stats || {}),
+          },
+        };
+        console.log("New state after update:", newState);
+        localStorage.setItem("clickerGameState", JSON.stringify(newState));
+        return newState;
+      });
+    },
+    []
+  );
+
+  const handleClick = useCallback(() => {
+    updateGameState((prevState) => {
+      const newState: Partial<GameState> = {
         resources: {
           ...prevState.resources,
-          ...(updates.resources || {}),
-        },
-        upgrades: {
-          ...prevState.upgrades,
-          ...(updates.upgrades || {}),
-        },
-        generators: {
-          ...prevState.generators,
-          ...(updates.generators || {}),
+          coins: prevState.resources.coins + 1,
         },
         stats: {
           ...prevState.stats,
-          ...(updates.stats || {}),
+          totalClicks: prevState.stats.totalClicks + 1,
         },
       };
-      localStorage.setItem("clickerGameState", JSON.stringify(newState));
+
+      if (Math.random() < 0.1) {
+        const dropPool: ResourceType[] = [
+          "coins",
+          "wood",
+          "food",
+          "knowledge",
+          "iron",
+          "rock",
+        ];
+        const droppedResource =
+          dropPool[Math.floor(Math.random() * dropPool.length)];
+        const dropAmount = Math.floor(Math.random() * 10) + 1;
+
+        newState.resources = {
+          ...(newState.resources as Resources),
+          [droppedResource]:
+            (newState.resources as Resources)[droppedResource] + dropAmount,
+        };
+
+        toast({
+          title: "Resource Drop!",
+          description: `You found ${dropAmount.toString()} ${droppedResource}!`,
+          duration: 3000,
+        });
+      }
+
       return newState;
     });
-  }, []);
-
-  const handleClick = useCallback(() => {
-    updateGameState({
-      resources: {
-        coins: gameState.resources.coins + 1,
-      },
-      stats: {
-        totalClicks: gameState.stats.totalClicks + 1,
-      },
-    });
-
-    if (Math.random() < 0.1) {
-      const dropPool: ResourceType[] = [
-        "coins",
-        "wood",
-        "food",
-        "knowledge",
-        "iron",
-        "rock",
-      ];
-      const droppedResource =
-        dropPool[Math.floor(Math.random() * dropPool.length)];
-      const dropAmount = Math.floor(Math.random() * 10) + 1;
-
-      updateGameState({
-        resources: {
-          [droppedResource]: gameState.resources[droppedResource] + dropAmount,
-        },
-      });
-
-      toast({
-        title: "Resource Drop!",
-        description: `You found ${dropAmount.toString()} ${droppedResource}!`,
-        duration: 3000,
-      });
-    }
-  }, [
-    gameState.resources,
-    gameState.stats.totalClicks,
-    updateGameState,
-    toast,
-  ]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      updateGameState({
-        resources: {
-          coins:
-            gameState.resources.coins + gameState.generators.coinMiner.level,
-          knowledge:
-            gameState.resources.knowledge +
-            gameState.generators.knowledgeMiner.level,
-          food: gameState.resources.food + gameState.generators.foodMiner.level,
-          iron: gameState.resources.iron + gameState.generators.ironMiner.level,
-          wood: gameState.resources.wood + gameState.generators.woodMiner.level,
-          rock: gameState.resources.rock + gameState.generators.rockMiner.level,
-        },
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [gameState.generators, gameState.resources, updateGameState]);
+  }, [updateGameState, toast]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -202,44 +189,73 @@ const ClickerGameDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, [gameState.upgrades.autoClickers.level, handleClick]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      updateGameState((prevState) => ({
+        resources: {
+          coins:
+            prevState.resources.coins + prevState.generators.coinMiner.level,
+          knowledge:
+            prevState.resources.knowledge +
+            prevState.generators.knowledgeMiner.level,
+          food: prevState.resources.food + prevState.generators.foodMiner.level,
+          iron: prevState.resources.iron + prevState.generators.ironMiner.level,
+          wood: prevState.resources.wood + prevState.generators.woodMiner.level,
+          rock: prevState.resources.rock + prevState.generators.rockMiner.level,
+        },
+      }));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [updateGameState]);
+
   const upgradeGenerator = useCallback(
     (type: keyof Generators) => {
       const cost = gameState.generators[type].cost;
       if (gameState.resources.coins >= cost) {
-        updateGameState({
+        updateGameState((prevState) => ({
           generators: {
+            ...prevState.generators,
             [type]: {
-              level: gameState.generators[type].level + 1,
-              cost: Math.floor(gameState.generators[type].cost * 1.15),
+              ...prevState.generators[type],
+              level: prevState.generators[type].level + 1,
+              cost: Math.floor(prevState.generators[type].cost * 1.15),
             },
           },
           resources: {
-            coins: gameState.resources.coins - cost,
+            ...prevState.resources,
+            coins: prevState.resources.coins - cost,
           },
-        });
+        }));
       }
     },
-    [gameState.generators, gameState.resources.coins, updateGameState]
+    [updateGameState]
   );
 
   const upgradeGather = useCallback(
     (type: keyof Upgrades) => {
-      const cost = gameState.upgrades[type].cost;
-      if (gameState.resources.coins >= cost) {
-        updateGameState({
-          upgrades: {
-            [type]: {
-              level: gameState.upgrades[type].level + 1,
-              cost: Math.floor(gameState.upgrades[type].cost * 1.15),
+      updateGameState((prevState) => {
+        const cost = prevState.upgrades[type].cost;
+        if (prevState.resources.coins >= cost) {
+          return {
+            upgrades: {
+              ...prevState.upgrades,
+              [type]: {
+                ...prevState.upgrades[type],
+                level: prevState.upgrades[type].level + 1,
+                cost: Math.floor(prevState.upgrades[type].cost * 1.15),
+              },
             },
-          },
-          resources: {
-            coins: gameState.resources.coins - cost,
-          },
-        });
-      }
+            resources: {
+              ...prevState.resources,
+              coins: prevState.resources.coins - cost,
+            },
+          };
+        }
+        return prevState;
+      });
     },
-    [gameState.upgrades, gameState.resources.coins, updateGameState]
+    [updateGameState]
   );
 
   const resetGame = useCallback(() => {
