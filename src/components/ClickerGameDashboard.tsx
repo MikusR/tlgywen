@@ -370,6 +370,7 @@ const ClickerGameDashboard: React.FC = () => {
                   <TabsTrigger value="quests">Quests</TabsTrigger>
                   <TabsTrigger value="shop">Shop</TabsTrigger>
                   <TabsTrigger value="log">Log</TabsTrigger>
+                  <TabsTrigger value="about">About</TabsTrigger>
                 </TabsList>
 
                 <TabsContent
@@ -460,6 +461,21 @@ const ClickerGameDashboard: React.FC = () => {
                       ))}
                     </TableBody>
                   </Table>
+                </TabsContent>
+                <TabsContent value="about">
+                  <p>
+                    Vectors and icons by{" "}
+                    <a
+                      href="https://dribbble.com/reggid?ref=svgrepo.com"
+                      target="_blank"
+                    >
+                      Aslan
+                    </a>{" "}
+                    in CC Attribution License via{" "}
+                    <a href="https://www.svgrepo.com/" target="_blank">
+                      SVG Repo
+                    </a>
+                  </p>
                 </TabsContent>
               </Tabs>
             </div>
