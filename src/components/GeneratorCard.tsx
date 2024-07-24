@@ -17,7 +17,7 @@ const GeneratorCard: React.FC<GeneratorCardProps> = ({name, level, cost, onUpgra
         <div className="flex h-24">
             <div
                 className="flex-shrink-0 w-24 h-24 bg-center bg-cover"
-                style={{backgroundImage: `url(${backgroundImage})`}}
+                style={{backgroundImage: `url(${[backgroundImage]})`}}
             />
             <div className="relative flex-grow p-2">
                 <div className="flex items-start justify-between h-full">

@@ -1,4 +1,4 @@
-import { ImageKey } from "src/assets/imageAssets";
+import { ImageKey } from "@/assets/imageAssets";
 
 export interface Generator {
   level: number;
