@@ -104,7 +104,7 @@ const ClickerGameDashboard: React.FC = () => {
   }, [gameState]);
 
   useEffect(() => {
-    const timer = setInterval(saveGameState, 5000); // Save every 5 seconds
+    const timer = setInterval(saveGameState, 50000); // Save every 50 seconds
     return () => clearInterval(timer);
   }, [saveGameState]);
 
