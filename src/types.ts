@@ -41,6 +41,7 @@ export interface Upgrades {
 export type ResourceType = keyof Resources;
 
 export interface GameState {
+  version: number;
   resources: Resources;
   upgrades: Upgrades;
   generators: Generators;

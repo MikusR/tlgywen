@@ -87,12 +87,45 @@ const initialState = {
   },
 };
 
+// Function to migrate old save data to the current version
+const migrateGameState = (oldState: GameState): GameState => {
+  const newState = { ...oldState };
+
+  if (!newState.version || newState.version < CURRENT_SAVE_VERSION) {
+    // Perform migrations based on the version
+    if (!newState.version) {
+      // Migrate from unversioned to version 1
+      newState.version = 1;
+      // Add any new fields or modify existing ones as needed
+      newState.resources = newState.resources || initialState.resources;
+      newState.upgrades = newState.upgrades || initialState.upgrades;
+      newState.generators = newState.generators || initialState.generators;
+      newState.stats = newState.stats || initialState.stats;
+    }
+
+    // Add more migration steps for future versions here
+    // if (newState.version < 2) {
+    //   // Migrate from version 1 to 2
+    //   newState.version = 2;
+    //   // Add migration logic
+    // }
+
+    console.log(
+      `Migrated save data from version ${
+        oldState.version || "unversioned"
+      } to ${newState.version}`
+    );
+  }
+  return newState as GameState;
+};
+
 const ClickerGameDashboard: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(() => {
     const savedState = localStorage.getItem("clickerGameState");
     if (savedState) {
       try {
-        return JSON.parse(savedState);
+        const parsedState = JSON.parse(savedState);
+        return migrateGameState(parsedState);
       } catch (error) {
         console.error("Error parsing saved game state:", error);
       }
