@@ -413,7 +413,7 @@ const ClickerGameDashboard: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {log.map((row) => (
-                        <TableRow>
+                        <TableRow key={row.id}>
                           <TableCell className="font-medium">
                             {row.time}
                           </TableCell>
