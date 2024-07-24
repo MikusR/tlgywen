@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { images, ImageKey } from "src/assets/imageAssets";
+import { images, ImageKey } from "@/assets/imageAssets";
 import PersistentSidebar from "./PersistentSidebar";
 import GeneratorCard from "./GeneratorCard";
 
