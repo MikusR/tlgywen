@@ -29,8 +29,11 @@ import {
   GameState,
 } from "../types";
 
+const CURRENT_SAVE_VERSION = 1;
+
 // Initial state values
 const initialState = {
+  version: CURRENT_SAVE_VERSION,
   resources: {
     coins: 0,
     wood: 0,
