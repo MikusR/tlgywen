@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { UserRoundSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -93,7 +93,6 @@ const ClickerGameDashboard: React.FC = () => {
   });
 
   const { toast } = useToast();
-  const unsavedChangesRef = useRef(false);
 
   const saveGameState = useCallback(() => {
     localStorage.setItem("clickerGameState", JSON.stringify(gameState));
@@ -129,9 +128,7 @@ const ClickerGameDashboard: React.FC = () => {
             ...(updates.stats || {}),
           },
         };
-        // console.log("New state after update:", newState);
-        unsavedChangesRef.current = true;
-        // localStorage.setItem("clickerGameState", JSON.stringify(newState));
+        
         return newState;
       });
     },
