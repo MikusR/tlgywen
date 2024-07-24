@@ -128,7 +128,7 @@ const ClickerGameDashboard: React.FC = () => {
             ...(updates.stats || {}),
           },
         };
-        console.log("New state after update:", newState);
+        // console.log("New state after update:", newState);
         localStorage.setItem("clickerGameState", JSON.stringify(newState));
         return newState;
       });
