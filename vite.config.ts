@@ -1,5 +1,6 @@
 import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react'
+import path from "path"
 import * as child from "child_process";
 import svgr from "vite-plugin-svgr";
 
@@ -12,5 +13,10 @@ export default defineConfig({
         __COMMIT_HASH__: JSON.stringify(commitHash),
     },
     plugins: [react(), svgr()],
-    base: "/tlgywen/"
+    base: "/tlgywen/",
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
+        },
+    },
 })
