@@ -1,7 +1,7 @@
 import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
-import ResourceCard from "./ResourceCard";
+import ResourceCard from "@/components/ResourceCard";
 import { PersistentSidebarProps, ResourceType } from "../types";
 import { images, ImageKey } from "@/assets/imageAssets";
 
