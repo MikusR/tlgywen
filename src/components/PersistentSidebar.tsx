@@ -3,22 +3,13 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 import ResourceCard from "./ResourceCard";
 import { PersistentSidebarProps, ResourceType } from "../types";
-import owlImage from "@/assets/owl.svg";
-import coinImage from "@/assets/coins.svg";
-import foodImage from "@/assets/food.svg";
-import knowledgeImage from "@/assets/knowledge.svg";
-import woodImage from "@/assets/wood.svg";
-import ironImage from "@/assets/iron.svg";
-import rockImage from "@/assets/rock.svg";
+import { images, ImageKey } from "@/assets/imageAssets";
 
-const resourceImages: Record<ResourceType, string> = {
-  coins: coinImage,
-  food: foodImage,
-  knowledge: knowledgeImage,
-  wood: woodImage,
-  iron: ironImage,
-  rock: rockImage,
-};
+export interface ResourceCardProps {
+  name: ResourceType;
+  amount: number;
+  image: ImageKey;
+}
 
 const resourceDescriptions: Record<ResourceType, string> = {
   coins: "The primary currency used for upgrades and purchases.",
@@ -36,7 +27,7 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({
   <div className="flex flex-col w-64 p-4 rounded-lg bg-card/90 text-card-foreground">
     <div className="flex items-center mb-6 space-x-4">
       <Avatar>
-        <AvatarImage src={owlImage} alt="Avatar" />
+        <AvatarImage src={images["owl"]} alt="Avatar" />
         <AvatarFallback>
           <User />
         </AvatarFallback>
@@ -53,7 +44,7 @@ const PersistentSidebar: React.FC<PersistentSidebarProps> = ({
           key={resourceType}
           name={resourceType}
           amount={resources[resourceType]}
-          image={resourceImages[resourceType]}
+          image={images[resourceType]}
           description={resourceDescriptions[resourceType]}
         />
       ))}

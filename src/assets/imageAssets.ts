@@ -4,6 +4,7 @@ import knowledgeImage from "@/assets/knowledge.svg";
 import woodImage from "@/assets/wood.svg";
 import ironImage from "@/assets/iron.svg";
 import rockImage from "@/assets/rock.svg";
+import owlImage from "@/assets/owl.svg";
 import backgroundSvg from "@/assets/leaves-6975462.svg";
 
 export const images = {
@@ -14,6 +15,7 @@ export const images = {
   iron: ironImage,
   rock: rockImage,
   background: backgroundSvg,
+  owl: owlImage,
 };
 
 export type ImageKey = keyof typeof images;
