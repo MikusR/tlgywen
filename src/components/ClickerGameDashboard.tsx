@@ -384,9 +384,9 @@ const ClickerGameDashboard: React.FC = () => {
                 <TabsList className="mb-4 bg-background/90">
                   <TabsTrigger value="main">Main</TabsTrigger>
                   <TabsTrigger value="generators">Generators</TabsTrigger>
-                  <TabsTrigger value="research">Research</TabsTrigger>
+{/*                   <TabsTrigger value="research">Research</TabsTrigger>
                   <TabsTrigger value="quests">Quests</TabsTrigger>
-                  <TabsTrigger value="shop">Shop</TabsTrigger>
+                  <TabsTrigger value="shop">Shop</TabsTrigger> */}
                   <TabsTrigger value="log">Log</TabsTrigger>
                   <TabsTrigger value="about">About</TabsTrigger>
                 </TabsList>
