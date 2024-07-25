@@ -60,10 +60,3 @@ export interface PersistentSidebarProps {
   stats: Stats;
   resources: Resources;
 }
-
-export interface ResourceCardProps {
-  name: ResourceType;
-  amount: number;
-  image: ImageKey;
-  description: string;
-}
