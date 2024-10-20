@@ -28,6 +28,8 @@ import {
   Upgrades,
   GameState,
 } from "../types";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 const CURRENT_SAVE_VERSION = 1;
 
@@ -363,170 +365,177 @@ const ClickerGameDashboard: React.FC = () => {
           alt="Background"
           className="fixed inset-0 object-cover w-full h-full -z-10"
         />
-        <div className="absolute inset-0 bg-background/90">
-          <div className="flex h-full">
-            <PersistentSidebar
-              stats={gameState.stats}
-              resources={gameState.resources}
-            />
-            <div className="flex flex-col flex-grow p-4 overflow-hidden">
-              <div className="flex items-center justify-between mb-4">
-                <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
-                <div className="flex items-center space-x-2">
-                  <Button onClick={resetGame} variant="destructive">
-                    Reset Game
-                  </Button>
-                  <ModeToggle />
+        <SidebarProvider>
+          <AppSidebar />
+          <div className="absolute inset-0 bg-background/90">
+            <div className="flex h-full">
+              <PersistentSidebar
+                stats={gameState.stats}
+                resources={gameState.resources}
+              />
+              <div className="flex flex-col flex-grow p-4 overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
+                  <div className="flex items-center space-x-2">
+                    <Button onClick={resetGame} variant="destructive">
+                      Reset Game
+                    </Button>
+                    <ModeToggle />
+                  </div>
                 </div>
-              </div>
 
-              <Tabs defaultValue="main" className="flex flex-col flex-grow">
-                <TabsList className="mb-4 bg-background/90">
-                  <TabsTrigger value="main">Main</TabsTrigger>
-                  <TabsTrigger value="generators">Generators</TabsTrigger>
-{/*                   <TabsTrigger value="research">Research</TabsTrigger>
+                <Tabs defaultValue="main" className="flex flex-col flex-grow">
+                  <TabsList className="mb-4 bg-background/90">
+                    <TabsTrigger value="main">Main</TabsTrigger>
+                    <TabsTrigger value="generators">Generators</TabsTrigger>
+                    {/*                   <TabsTrigger value="research">Research</TabsTrigger>
                   <TabsTrigger value="quests">Quests</TabsTrigger>
                   <TabsTrigger value="shop">Shop</TabsTrigger> */}
-                  <TabsTrigger value="log">Log</TabsTrigger>
-                  <TabsTrigger value="about">About</TabsTrigger>
-                </TabsList>
+                    <TabsTrigger value="log">Log</TabsTrigger>
+                    <TabsTrigger value="about">About</TabsTrigger>
+                  </TabsList>
 
-                <TabsContent
-                  value="main"
-                  className="flex-grow p-4 rounded-lg bg-card/90"
-                >
-                  <Tabs defaultValue="clicker">
-                    <TabsList>
-                      <TabsTrigger value="clicker">Clicker</TabsTrigger>
-                      <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="clicker">
-                      <div className="flex items-center justify-center h-full">
-                        <Button onClick={handleClick} size="lg" className="p-8">
-                          <UserRoundSearch className="w-6 h-6 mr-2" /> Gather
-                        </Button>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="upgrades">
-                      <GeneratorCard
-                        name="Auto Gather"
-                        level={gameState.upgrades.autoClickers.level}
-                        cost={gameState.upgrades.autoClickers.cost}
-                        onUpgrade={() => upgradeGather("autoClickers")}
-                        backgroundImage={
-                          images[gameState.upgrades.autoClickers.image]
-                        }
-                      />
-                    </TabsContent>
-                  </Tabs>
-                </TabsContent>
+                  <TabsContent
+                    value="main"
+                    className="flex-grow p-4 rounded-lg bg-card/90"
+                  >
+                    <Tabs defaultValue="clicker">
+                      <TabsList>
+                        <TabsTrigger value="clicker">Clicker</TabsTrigger>
+                        <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="clicker">
+                        <div className="flex items-center justify-center h-full">
+                          <Button
+                            onClick={handleClick}
+                            size="lg"
+                            className="p-8"
+                          >
+                            <UserRoundSearch className="w-6 h-6 mr-2" /> Gather
+                          </Button>
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="upgrades">
+                        <GeneratorCard
+                          name="Auto Gather"
+                          level={gameState.upgrades.autoClickers.level}
+                          cost={gameState.upgrades.autoClickers.cost}
+                          onUpgrade={() => upgradeGather("autoClickers")}
+                          backgroundImage={
+                            images[gameState.upgrades.autoClickers.image]
+                          }
+                        />
+                      </TabsContent>
+                    </Tabs>
+                  </TabsContent>
 
-                <TabsContent
-                  value="generators"
-                  className="flex-grow p-4 overflow-auto rounded-lg bg-card/90"
-                >
-                  <ScrollArea className="h-full">
-                    {(
-                      Object.entries(gameState.generators) as [
-                        keyof Generators,
-                        Generator
-                      ][]
-                    ).map(([key, generator]) => (
-                      <GeneratorCard
-                        key={key}
-                        name={key}
-                        level={generator.level}
-                        cost={generator.cost}
-                        onUpgrade={() =>
-                          upgradeGenerator(key as keyof Generators)
-                        }
-                        backgroundImage={images[generator.image]}
-                      />
-                    ))}
-                  </ScrollArea>
-                </TabsContent>
-
-                <TabsContent value="research">
-                  <p>Research content (to be implemented)</p>
-                </TabsContent>
-
-                <TabsContent value="quests">
-                  <p>Quests content (to be implemented)</p>
-                </TabsContent>
-
-                <TabsContent value="shop">
-                  <p>Shop content (to be implemented)</p>
-                </TabsContent>
-                <TabsContent value="log">
-                  <Table>
-                    <TableCaption>Event log</TableCaption>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[100px]">Time</TableHead>
-                        <TableHead className="text-center">Event</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {log.map((row) => (
-                        <TableRow key={row.id}>
-                          <TableCell className="font-medium">
-                            {row.time}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {row.event}
-                          </TableCell>
-                        </TableRow>
+                  <TabsContent
+                    value="generators"
+                    className="flex-grow p-4 overflow-auto rounded-lg bg-card/90"
+                  >
+                    <ScrollArea className="h-full">
+                      {(
+                        Object.entries(gameState.generators) as [
+                          keyof Generators,
+                          Generator
+                        ][]
+                      ).map(([key, generator]) => (
+                        <GeneratorCard
+                          key={key}
+                          name={key}
+                          level={generator.level}
+                          cost={generator.cost}
+                          onUpgrade={() =>
+                            upgradeGenerator(key as keyof Generators)
+                          }
+                          backgroundImage={images[generator.image]}
+                        />
                       ))}
-                    </TableBody>
-                  </Table>
-                </TabsContent>
-                <TabsContent value="about">
-                  <ScrollArea className="h-full">
-                    <div className="space-y-6">
-                      <section>
-                        <h2 className="mb-2 text-2xl font-bold">
-                          Game Version
-                        </h2>
-                        <p>Current Version: {__COMMIT_HASH__}</p>
-                      </section>
+                    </ScrollArea>
+                  </TabsContent>
 
-                      <section>
-                        <h2 className="mb-2 text-2xl font-bold">
-                          Asset Credits
-                        </h2>
-                        <ul className="space-y-2">
-                          {assetCredits.map((credit, index) => (
-                            <li key={index}>
-                              <strong>{credit.name}</strong> by{" "}
-                              <a
-                                href={credit.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-500 hover:underline"
-                              >
-                                {credit.author}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
+                  <TabsContent value="research">
+                    <p>Research content (to be implemented)</p>
+                  </TabsContent>
 
-                      <section>
-                        <h2 className="mb-2 text-2xl font-bold">
-                          About the Game
-                        </h2>
-                        <p>
-                          This clicker game was developed as a fun project to
-                          explore React and game development concepts.
-                        </p>
-                      </section>
-                    </div>
-                  </ScrollArea>
-                </TabsContent>
-              </Tabs>
+                  <TabsContent value="quests">
+                    <p>Quests content (to be implemented)</p>
+                  </TabsContent>
+
+                  <TabsContent value="shop">
+                    <p>Shop content (to be implemented)</p>
+                  </TabsContent>
+                  <TabsContent value="log">
+                    <Table>
+                      <TableCaption>Event log</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[100px]">Time</TableHead>
+                          <TableHead className="text-center">Event</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {log.map((row) => (
+                          <TableRow key={row.id}>
+                            <TableCell className="font-medium">
+                              {row.time}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {row.event}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  <TabsContent value="about">
+                    <ScrollArea className="h-full">
+                      <div className="space-y-6">
+                        <section>
+                          <h2 className="mb-2 text-2xl font-bold">
+                            Game Version
+                          </h2>
+                          <p>Current Version: {__COMMIT_HASH__}</p>
+                        </section>
+
+                        <section>
+                          <h2 className="mb-2 text-2xl font-bold">
+                            Asset Credits
+                          </h2>
+                          <ul className="space-y-2">
+                            {assetCredits.map((credit, index) => (
+                              <li key={index}>
+                                <strong>{credit.name}</strong> by{" "}
+                                <a
+                                  href={credit.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-500 hover:underline"
+                                >
+                                  {credit.author}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+
+                        <section>
+                          <h2 className="mb-2 text-2xl font-bold">
+                            About the Game
+                          </h2>
+                          <p>
+                            This clicker game was developed as a fun project to
+                            explore React and game development concepts.
+                          </p>
+                        </section>
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                </Tabs>
+              </div>
             </div>
           </div>
-        </div>
+        </SidebarProvider>
         <Toaster />
       </div>
     </ThemeProvider>
