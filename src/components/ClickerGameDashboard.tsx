@@ -368,7 +368,7 @@ const ClickerGameDashboard: React.FC = () => {
           />
 
           <AppSidebar stats={gameState.stats} resources={gameState.resources} />
-          <div>sdfsdfsdf</div>
+
           <div className="bg-background/90">
             <div className="container px-4 mx-auto">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
