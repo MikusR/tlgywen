@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { images, ImageKey } from "@/assets/imageAssets";
-import PersistentSidebar from "@/components/PersistentSidebar";
+
 import GeneratorCard from "@/components/GeneratorCard";
 
 import {
@@ -366,13 +366,13 @@ const ClickerGameDashboard: React.FC = () => {
           className="fixed inset-0 object-cover w-full h-full -z-10"
         />
         <SidebarProvider>
-          <AppSidebar />
+          <AppSidebar stats={gameState.stats} resources={gameState.resources} />
           <div className="absolute inset-0 bg-background/90">
             <div className="flex h-full">
-              <PersistentSidebar
+              {/* <PersistentSidebar
                 stats={gameState.stats}
                 resources={gameState.resources}
-              />
+              /> */}
               <div className="flex flex-col flex-grow p-4 overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
                   <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>

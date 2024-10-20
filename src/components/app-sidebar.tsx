@@ -2,18 +2,17 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import PersistentSidebar from "./PersistentSidebar";
+import { PersistentSidebarProps } from "@/types";
 
-export function AppSidebar() {
+export function AppSidebar({ stats, resources }: PersistentSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader />
       <SidebarContent>
-        <SidebarGroup />
-        
-        <SidebarGroup />
+        <PersistentSidebar stats={stats} resources={resources} />
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>
