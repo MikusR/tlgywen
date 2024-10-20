@@ -368,10 +368,9 @@ const ClickerGameDashboard: React.FC = () => {
           />
 
           <AppSidebar stats={gameState.stats} resources={gameState.resources} />
-          <div className="absolute inset-0 bg-background/90">
-            <div className="flex h-full">
-          
-              <div className="flex flex-col flex-grow p-4 overflow-hidden">
+          <div className="bg-background/90">
+            <div className="container px-4 mx-auto">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="flex items-center justify-between mb-4">
                   <h1 className="text-3xl font-bold">Clicker Game Dashboard</h1>
                   <div className="flex items-center space-x-2">
