@@ -359,13 +359,14 @@ const ClickerGameDashboard: React.FC = () => {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="relative min-h-screen bg-transparent">
-        <img
-          src={images["background"]}
-          alt="Background"
-          className="fixed inset-0 object-cover w-full h-full -z-10"
-        />
-        <SidebarProvider>
+      <SidebarProvider>
+        <div className="relative min-h-screen bg-transparent">
+          <img
+            src={images["background"]}
+            alt="Background"
+            className="fixed inset-0 object-cover w-full h-full -z-10"
+          />
+
           <AppSidebar stats={gameState.stats} resources={gameState.resources} />
           <div className="absolute inset-0 bg-background/90">
             <div className="flex h-full">
@@ -535,9 +536,10 @@ const ClickerGameDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-        </SidebarProvider>
-        <Toaster />
-      </div>
+
+          <Toaster />
+        </div>
+      </SidebarProvider>
     </ThemeProvider>
   );
 };
